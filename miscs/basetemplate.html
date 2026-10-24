@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Campus Lost & Found</title>
+	<link rel="stylesheet" href="fontawesome/css/all.min.css"> <!-- https://fontawesome.com/ -->
+	<link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro&display=swap" rel="stylesheet"> <!-- https://fonts.google.com/ -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/templatemo-xtra-blog.css" rel="stylesheet">
+    <link hraf="css/custom.css" rel="stylrsheet">
+    <!-- TemplateMo 553 Xtra Blog https://templatemo.com/tm-553-xtra-blog -->
+</head>
+
+<body>
+
+    <!-- vv THIS IS THE SIDE BAR vv -->
+	<header class="tm-header" id="tm-header">
+        <div class="tm-header-wrapper">
+            <button class="navbar-toggler" type="button" aria-label="Toggle navigation">
+                <i class="fas fa-bars"></i>
+            </button>
+            <!-- Logo -->
+            <div class="tm-site-header">
+                <div class="mb-3 mx-auto tm-site-logo"><i class="fas fa-times fa-2x"></i></div>            
+                <h1 class="text-center">Campus Lost & Found</h1>
+            </div>
+            <!-- Menu -->
+
+            <nav class="tm-nav" id="tm-nav">            
+                <ul>
+                    <li class="tm-nav-item active"><a href="index.php" class="tm-nav-link">
+                        <i class="fas fa-home"></i>Trang Chủ</a></li>
+                    <li class="tm-nav-item active"><a href="itemself.html" class="tm-nav-link">
+                        <i class="fas fa-folder"></i>Đồ của tôi</a></li>
+                    <li class="tm-nav-item active"><a href="itemresolved.html" class="tm-nav-link">
+                        <i class="fas fa-flag"></i>Đồ được đã tìm thấy</a></li>
+                    <li class="tm-nav-item active"><a href="itempost.php" class="tm-nav-link">
+                        <i class="fas fa-plus"></i>Báo nhặt / mất đồ</a></li>
+                </ul>
+            </nav>
+
+            <!-- vv This is the account name and gmail vv -->
+            <div class="tm-mb-65 user-auth-box">
+                <?php if (isset($_SESSION['user_id'])): ?>
+                    <!-- Khi người dùng ĐÃ đăng nhập -->
+                    <div class="user-profile-info p-3 mb-2 bg-light rounded text-dark">
+                        <div class="font-weight-bold" style="font-size: 1.1rem;">
+                            <i class="fas fa-user-circle mr-1"></i> <?php echo htmlspecialchars($_SESSION['fullname'] ?? 'Thành viên'); ?>
+                        </div>
+                        <div class="text-muted small">
+                            <i class="fas fa-envelope mr-1"></i> <?php echo htmlspecialchars($_SESSION['email'] ?? ''); ?>
+                        </div>
+                    </div>
+                    <a href="logout.php" class="btn btn-outline-danger btn-block btn-sm">
+                        <i class="fas fa-sign-out-alt"></i> Đăng xuất
+                    </a>
+                <?php else: ?>
+                    <!-- Khi người dùng CHƯA đăng nhập -->
+                    <div class="d-flex flex-column flex-sm-row gap-2">
+                        <a href="login.php" class="btn btn-primary mr-0 mr-sm-2 mb-2 mb-sm-0">
+                            <i class="fas fa-sign-in-alt"></i> Đăng nhập
+                        </a>
+                        <a href="register.php" class="btn btn-outline-success">
+                            <i class="fas fa-user-plus"></i> Đăng ký
+                        </a>
+                    </div>
+                <?php endif; ?>
+            </div>
+
+            <!-- ^^ This is the account name and gmail ^^ -->
+
+            <p class="tm-mb-80 pr-5 text-white">
+                Hello! I'm a placeholder text!
+            </p>
+            
+        </div>
+    </header>
+    <!-- ^^ THIS IS THE SIDE BAR ^^ -->
+
+    <!-- vv search bar, posts and navigation vv -->
+    <!-- ... -->
+    <!-- ^^ search bar, posts and navigation ^^ -->
+    
+        <footer class="row tm-row">
+            <hr class="col-12">
+            <div class="col-md-6 col-12 tm-color-gray">
+                Design: <a rel="nofollow" target="_parent" href="https://templatemo.com" class="tm-external-link">TemplateMo</a>
+            </div>
+            <div class="col-md-6 col-12 tm-color-gray tm-copyright">
+                Copyright 2026 PNC
+            </div>
+        </footer>
+        </main>
+    </div>
+
+    <script src="custom.js"></script>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/templatemo-script.js"></script>
+</body>
+</html>

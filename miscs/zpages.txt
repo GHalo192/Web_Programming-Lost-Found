@@ -1,0 +1,22 @@
+Main Pages:
+1: index.php            -- missing search bar
+2: myitem.php           -- missing 
+3: itemresolved.php     -- missing 
+4: itemclosed.php       -- missing 
+5: itempost.php         -- DONE
+6.1: login.php          -- DONE
+6.2: register.php       -- DONE
+
+Button:
+1: logout.php           -- DONE
+
+Support:
+1: db.php
+2: save-post.php
+3: process-login.php
+4: process-register.php
+
+Misc:
+basetemplate.html
+LnFdb.sql
+zpages.txt
