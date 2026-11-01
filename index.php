@@ -142,53 +142,36 @@ session_start();
 ========================================== -->
 
 <div class="container-fluid">
-
     <main class="tm-main">
-
-        <!-- Search and filter -->
-
+        <!-- SEARCH FORM -->
         <div class="row tm-row mb-4">
-
             <div class="col-12">
 
                 <form id="searchForm"
-                      class="form-inline tm-search-form bg-white p-3 border rounded">
+                        class="form-inline tm-search-form bg-white p-3 border rounded">
 
                     <div class="row w-100 g-2">
 
-                        <!-- Keyword -->
-
-                        <div class="col-md-3">
-
+                        <div class="col-md-4">
                             <input
                                 id="keyword"
                                 class="form-control w-100"
                                 type="text"
+                                name="keyword"
                                 placeholder="Nhập tên đồ vật, đặc điểm..."
                             >
-
                         </div>
-
-                        <!-- Item type -->
 
                         <div class="col-md-2">
-
-                            <select id="type" class="form-control w-100">
-
+                            <select id="type" name="type" class="form-control w-100">
                                 <option value="">-- Loại tin --</option>
-                                <option value="LOST">Cần tìm đồ (Mất)</option>
-                                <option value="FOUND">Nhặt được đồ</option>
-
+                                <option value="LOST">Báo mất</option>
+                                <option value="FOUND">Nhặt được</option>
                             </select>
-
                         </div>
 
-                        <!-- Category -->
-
-                        <div class="col-md-3">
-
-                            <select id="category_id" class="form-control w-100">
-
+                        <div class="col-md-2">
+                            <select id="category_id" name="category_id" class="form-control w-100">
                                 <option value="">-- Chọn danh mục --</option>
                                 <option value="1">Thiết bị điện tử</option>
                                 <option value="2">Giấy tờ tùy thân</option>
@@ -198,16 +181,11 @@ session_start();
                                 <option value="6">Đồ dùng y tế</option>
                                 <option value="7">Dụng cụ học tập</option>
                                 <option value="8">Khác</option>
-
                             </select>
-
                         </div>
 
-                        <!-- Location -->
-
                         <div class="col-md-2">
-
-                            <select id="location_id" class="form-control w-100">
+                            <select id="location_id" name="location_id" class="form-control w-100">
                                 <option value="">-- Khu vực --</option>
                                 <option value="1">Tòa A</option>
                                 <option value="2">Tòa B</option>
@@ -230,29 +208,21 @@ session_start();
                                 <option value="19">Bãi xe tòa G</option>
                                 <option value="20">Bãi xe nhà thi đấu</option>
                                 <option value="21">Khác</option>
-
                             </select>
-
                         </div>
 
-                        <!-- Search button -->
-
                         <div class="col-md-2">
-
                             <button class="btn btn-outline-success w-100" type="submit">
                                 <i class="fas fa-search"></i> Lọc
                             </button>
-
                         </div>
 
                     </div>
-
                 </form>
 
             </div>
-
         </div>
-
+        <!-- END SEARCH FORM -->
 
         <!-- ==========================================
              4. POSTS CONTAINER
