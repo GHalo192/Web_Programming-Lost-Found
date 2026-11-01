@@ -28,7 +28,11 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 }
 
 // Kiểm tra đăng nhập
-if (!isset($_SESSION['user_id'])) {
+if (
+    !isset($_SESSION['user_id']) ||
+    !is_numeric($_SESSION['user_id']) ||
+    (int) $_SESSION['user_id'] <= 0
+) {
     respond(401, [
         'success' => false,
         'message' => 'Bạn cần đăng nhập để xem bài đăng của mình.'

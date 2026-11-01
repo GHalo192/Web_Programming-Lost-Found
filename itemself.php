@@ -7,6 +7,10 @@ if (!isset($_SESSION['user_id'])) {
     header('Location: login.php');
     exit();
 }
+
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
 ?>
 
 <!DOCTYPE html>
@@ -261,6 +265,7 @@ if (!isset($_SESSION['user_id'])) {
 
     <!-- REST API -->
     <script>
+        const CSRF_TOKEN = <?php echo json_encode($_SESSION['csrf_token']); ?>;
 
         // API endpoint lấy bài đăng của tài khoản hiện tại
         const API_URL = 'api/users/me/items.php';
@@ -290,20 +295,21 @@ if (!isset($_SESSION['user_id'])) {
                 return 'img/default.png';
             }
 
-            const value = String(imageURL);
+            const value = String(imageURL).trim();
 
             if (
                 value.startsWith('http://') ||
                 value.startsWith('https://') ||
                 value.startsWith('/') ||
                 value.startsWith('./') ||
-                value.startsWith('../')
+                value.startsWith('../') ||
+                value.startsWith('uploads/')
             ) {
                 return value;
             }
 
             return 'img/default.png';
-        }
+}
 
 
         // Chuyển ngày từ database sang định dạng dd/mm/yyyy hh:mm
@@ -385,6 +391,7 @@ if (!isset($_SESSION['user_id'])) {
         }
 
         // Tạo HTML cho một bài đăng
+
         function renderItem(item) {
 
             const itemId = Number(item.item_id);
@@ -401,16 +408,67 @@ if (!isset($_SESSION['user_id'])) {
             const typeBadge = renderTypeBadge(item.type);
             const statusBadge = renderStatusBadge(item.status);
 
-            // Chỉ hiển thị nút "Đã xong" khi bài đăng đang APPROVED
-            const resolvedButton = item.status === 'OPEN'
-                ? `
-                    <a href="update_status.php?id=${itemId}&status=RESOLVED"
-                       class="btn btn-sm btn-outline-success"
-                       onclick="return confirm('Xác nhận đã tìm thấy / trao trả thành công đồ vật này?');">
+            // Status action buttons
+            let statusButtons = '';
+
+            if (item.status === 'OPEN') {
+
+                statusButtons = `
+                    <button
+                        type="button"
+                        class="btn btn-sm btn-outline-success"
+                        onclick="updateItemStatus(${itemId}, 'RESOLVED')">
+
                         <i class="fas fa-check"></i> Đã xong
-                    </a>
-                `
-                : '';
+
+                    </button>
+
+                    <button
+                        type="button"
+                        class="btn btn-sm btn-outline-secondary"
+                        onclick="updateItemStatus(${itemId}, 'CLOSED')">
+
+                        <i class="fas fa-lock"></i> Đóng
+
+                    </button>
+                `;
+
+            } else if (item.status === 'RESOLVED') {
+
+                statusButtons = `
+                    <button
+                        type="button"
+                        class="btn btn-sm btn-outline-warning"
+                        onclick="updateItemStatus(${itemId}, 'OPEN')">
+
+                        <i class="fas fa-undo"></i> Mở lại
+
+                    </button>
+
+                    <button
+                        type="button"
+                        class="btn btn-sm btn-outline-secondary"
+                        onclick="updateItemStatus(${itemId}, 'CLOSED')">
+
+                        <i class="fas fa-lock"></i> Đóng
+
+                    </button>
+                `;
+
+            } else if (item.status === 'CLOSED') {
+
+                statusButtons = `
+                    <button
+                        type="button"
+                        class="btn btn-sm btn-secondary"
+                        disabled>
+
+                        <i class="fas fa-lock"></i> Đã đóng
+
+                    </button>
+                `;
+
+            }
 
             return `
                 <article class="col-12 col-md-6 tm-post mb-5">
@@ -458,7 +516,6 @@ if (!isset($_SESSION['user_id'])) {
 
                         </div>
 
-
                         <!-- ACTION BUTTONS -->
                         <div class="pt-3 border-top mt-3">
 
@@ -466,16 +523,19 @@ if (!isset($_SESSION['user_id'])) {
 
                                 <a href="postedit.php?id=${itemId}"
                                 class="btn btn-sm btn-outline-primary">
+
                                     <i class="fas fa-edit"></i> Chỉnh sửa
+
                                 </a>
 
-                                ${resolvedButton}
+                                ${statusButtons}
 
-                                <a href="delete_post.php?id=${itemId}"
-                                   class="btn btn-sm btn-outline-danger"
-                                   onclick="return confirm('Bạn có chắc chắn muốn xóa bài đăng này không?');">
-                                    <i class="fas fa-trash"></i> Xóa
-                                </a>
+                                <button
+                                    type="button"
+                                    class="btn btn-danger"
+                                    onclick="deleteItem(${itemId})">
+                                    Xóa bài đăng
+                                </button>
 
                             </div>
 
@@ -594,6 +654,84 @@ if (!isset($_SESSION['user_id'])) {
                 `;
             }
         }
+
+        async function deleteItem(itemId) {
+            // Xác nhận trước khi xóa
+            const confirmed = confirm(
+                "Bạn có chắc chắn muốn xóa bài đăng này không?"
+            );
+
+            if (!confirmed) {
+                return;
+            }
+
+            try {
+                const response = await fetch(
+                    `api/items/item.php?id=${itemId}`,
+                    {
+                        method: "DELETE",
+                        headers: {
+                            "X-CSRF-Token": CSRF_TOKEN
+                        }
+                    }
+                );
+
+                const result = await response.json();
+
+                if (!response.ok || !result.success) {
+                    alert(result.message || "Không thể xóa bài đăng.");
+                    return;
+                }
+
+                alert("Xóa bài đăng thành công!");
+
+                // Tải lại danh sách bài đăng
+                window.location.reload();
+
+            } catch (error) {
+                console.error("Delete error:", error);
+                alert("Đã xảy ra lỗi khi kết nối đến máy chủ.");
+            }
+        }
+
+        // Update trạng thái bài đăng
+        async function updateItemStatus(itemId, newStatus) {
+            try {
+                const response = await fetch(
+                    `api/items/update-status.php?id=${encodeURIComponent(itemId)}`,
+                    {
+                        method: 'PATCH',
+                        credentials: 'same-origin',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            status: newStatus
+                        })
+                    }
+                );
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    alert(result.message || 'Could not update item status.');
+                    return;
+                }
+
+                alert(result.message);
+
+                // Reload the item list
+                loadItems();
+
+            } catch (error) {
+                console.error('Update status error:', error);
+                alert('An error occurred while updating the item.');
+            }
+        }
+
+
+
+
 
 
         // Ngăn form tải lại trang

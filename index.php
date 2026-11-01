@@ -328,16 +328,21 @@ function getImageURL(imageURL) {
         return 'img/default.png';
     }
 
-    const value = String(imageURL);
+    const value = String(imageURL).trim();
 
-    if (/^(https?:\/\/|\/|\.\/|\.\.\/)/i.test(value)) {
+    if (
+        value.startsWith('http://') ||
+        value.startsWith('https://') ||
+        value.startsWith('/') ||
+        value.startsWith('./') ||
+        value.startsWith('../') ||
+        value.startsWith('uploads/')
+    ) {
         return value;
     }
 
     return 'img/default.png';
-
 }
-
 
 // Format event date
 function formatDate(dateString) {
