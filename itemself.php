@@ -464,8 +464,8 @@ if (!isset($_SESSION['user_id'])) {
 
                             <div class="btn-group w-100 mb-2" role="group">
 
-                                <a href="edit_post.php?id=${itemId}"
-                                   class="btn btn-sm btn-outline-primary">
+                                <a href="postedit.php?id=${itemId}"
+                                class="btn btn-sm btn-outline-primary">
                                     <i class="fas fa-edit"></i> Chỉnh sửa
                                 </a>
 
