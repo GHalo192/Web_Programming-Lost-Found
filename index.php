@@ -291,6 +291,7 @@ session_start();
 ========================================== -->
 
 <script>
+const PAGE_STATUS = 'OPEN';
 
 // API endpoint
 const API_URL = 'api/items/index.php';
@@ -388,6 +389,7 @@ async function loadItems(page = 1) {
     if (category_id) params.append('category_id', category_id);
     if (location_id) params.append('location_id', location_id);
 
+    params.append('status', PAGE_STATUS);
     params.append('page', page);
 
     // Update browser URL without reloading page
@@ -741,6 +743,7 @@ function loadItemsFromCurrentURL(page) {
     if (category_id) params.append('category_id', category_id);
     if (location_id) params.append('location_id', location_id);
 
+    params.append('status', PAGE_STATUS);
     params.append('page', page);
 
     // Fetch without pushing another browser history entry

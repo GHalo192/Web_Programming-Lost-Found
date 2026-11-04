@@ -6,6 +6,11 @@ if (!isset($_SESSION['user_id'])) {
     header('Location: login.php');
     exit();
 }
+
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -113,8 +118,17 @@ if (!isset($_SESSION['user_id'])) {
             <div class="col-lg-8 col-md-10 mx-auto">
                 <!-- FORM ĐĂNG TIN -->
                 <!-- Lưu ý: Đăng ảnh BẮT BUỘC phải có enctype="multipart/form-data" -->
-                <form action="save_post.php" method="POST" enctype="multipart/form-data" class="tm-contact-form">                    
-                    <!-- 1. Loại tin đăng -->
+                <form id="postForm" method="POST" enctype="multipart/form-data" class="tm-contact-form">
+                <input
+                    type="hidden"
+                    name="csrf_token"
+                    value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>"
+                >                    
+                
+                
+                
+                
+                <!-- 1. Loại tin đăng -->
                     <div class="form-group row mb-4">
                         <label class="col-sm-3 col-form-label tm-color-primary font-weight-bold">Loại tin <span class="text-danger">*</span></label>
                         <div class="col-sm-9 d-flex align-items-center">
@@ -251,6 +265,54 @@ if (!isset($_SESSION['user_id'])) {
     <script src="js/custom.js"></script>
     <script src="js/jquery.min.js"></script>
     <script src="js/templatemo-script.js"></script>
+
+    <script>
+    const postForm = document.getElementById('postForm');
+
+    postForm.addEventListener('submit', async function(event) {
+
+        // Ngăn form gửi theo cách truyền thống
+        event.preventDefault();
+
+        // Lấy dữ liệu từ form
+        const formData = new FormData(postForm);
+
+        const csrfToken = formData.get('csrf_token');
+
+        try {
+
+            const response = await fetch('api/items/index.php', {
+                method: 'POST',
+
+                credentials: 'same-origin',
+
+                headers: {
+                    'X-CSRF-Token': csrfToken
+                },
+
+                body: formData
+            });
+
+            const result = await response.json();
+
+            if (!response.ok || !result.success) {
+                alert(result.message || 'Không thể đăng bài.');
+                return;
+            }
+
+            alert(result.message);
+
+            // Chuyển về trang chủ sau khi đăng thành công
+            window.location.href = 'index.php';
+
+        } catch (error) {
+
+            console.error('Create post error:', error);
+
+            alert('Đã xảy ra lỗi khi kết nối đến máy chủ.');
+        }
+    });
+    </script>
 
 </body>
 </html>
