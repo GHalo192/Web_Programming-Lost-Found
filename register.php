@@ -1,11 +1,21 @@
 <?php
 session_start();
-// Nếu đã đăng nhập thì tự động chuyển về trang chủ
+
+// Nếu đã đăng nhập thì chuyển về trang chủ
 if (isset($_SESSION['user_id'])) {
     header('Location: index.php');
     exit();
 }
+
+// Tạo CSRF token nếu chưa có
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
+$csrf_token = $_SESSION['csrf_token'];
 ?>
+
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -43,19 +53,14 @@ if (isset($_SESSION['user_id'])) {
     </div>
 
     <!-- Hiển thị thông báo lỗi nếu có -->
-    <?php if (isset($_GET['error'])): ?>
-        <div class="alert alert-danger text-center mb-3">
-            <?php 
-                if ($_GET['error'] == 'empty') echo "Vui lòng điền đầy đủ các trường thông tin!";
-                elseif ($_GET['error'] == 'email_exists') echo "Email này đã được sử dụng!";
-                elseif ($_GET['error'] == 'password_mismatch') echo "Mật khẩu nhập lại không khớp!";
-                elseif ($_GET['error'] == 'failed') echo "Đăng ký thất bại, vui lòng thử lại!";
-            ?>
-        </div>
-    <?php endif; ?>
+    <div
+        id="registerMessage"
+        class="alert alert-danger text-center mb-3"
+        style="display: none;"
+    ></div>
 
     <!-- FORM ĐĂNG KÝ -->
-    <form action="process-register.php" method="POST">
+    <form id="registerForm">
         
         <div class="form-group">
             <label for="fullname" class="font-weight-bold"><i class="fas fa-id-card mr-1"></i> Họ và tên <span class="text-danger">*</span></label>
@@ -92,6 +97,75 @@ if (isset($_SESSION['user_id'])) {
         <p class="mt-2"><a href="index.php" class="text-muted"><i class="fas fa-arrow-left"></i> Quay lại trang chủ</a></p>
     </div>
 </div>
+
+<script>
+
+
+const registerForm = document.getElementById('registerForm');
+const registerMessage = document.getElementById('registerMessage');
+
+const CSRF_TOKEN = <?php echo json_encode($csrf_token); ?>;
+
+registerForm.addEventListener('submit', async function (event) {
+    // Ngăn form gửi dữ liệu theo cách truyền thống
+    event.preventDefault();
+
+    // Lấy dữ liệu từ các input
+    const fullname = document.getElementById('fullname').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+    const password = document.getElementById('password').value;
+    const confirm_password = document.getElementById('confirm_password').value;
+
+    // Ẩn thông báo cũ
+    registerMessage.style.display = 'none';
+
+    try {
+        // Gửi request đến REST API
+        const response = await fetch('api/auth/register.php', {
+            method: 'POST',
+
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': CSRF_TOKEN
+            },
+
+            credentials: 'same-origin',
+
+            body: JSON.stringify({
+                fullname: fullname,
+                email: email,
+                phone: phone,
+                password: password,
+                confirm_password: confirm_password
+            })
+        });
+
+        // Nhận JSON từ API
+        const result = await response.json();
+
+        // Kiểm tra kết quả
+        if (!response.ok || !result.success) {
+            throw new Error(
+                result.message || 'Đăng ký thất bại.'
+            );
+        }
+
+        // Đăng ký thành công
+        alert(result.message);
+
+        // Chuyển đến trang đăng nhập
+        window.location.href = 'login.php';
+
+    } catch (error) {
+        // Hiển thị thông báo lỗi
+        registerMessage.textContent = error.message;
+        registerMessage.style.display = 'block';
+    }
+});
+
+
+</script>
 
 </body>
 </html>

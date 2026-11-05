@@ -1,49 +1,12 @@
 <?php
-session_start(); // Luôn đảm bảo dòng này nằm ở dòng đầu tiên của login.php
+session_start();
 
-require_once 'db.php';
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email = trim($_POST['email'] ?? '');
-    $password = $_POST['password'] ?? '';
-
-    if (!empty($email) && !empty($password)) {
-        // Lấy thông tin user từ CSDL
-        $sql = "SELECT * FROM Users WHERE email = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("s", $email);
-        $stmt->execute();
-        $result = $stmt->get_result();
-
-        if ($result->num_rows === 1) {
-            $user = $result->fetch_assoc();
-
-            // Kiểm tra mật khẩu
-            if (password_verify($password, $user['password'])) {
-                
-                // =========================================================
-                // CÁC DÒNG CẦN CHỈNH SỬA / BỔ SUNG TẠI ĐÂY
-                // =========================================================
-                $_SESSION['user_id']  = $user['id'];
-                $_SESSION['fullname'] = $user['fullname']; // Lưu Họ tên vào Session
-                $_SESSION['email']    = $user['email'];    // Lưu Email vào Session
-                $_SESSION['phone']    = $user['phone'] ?? ''; // Lưu SĐT vào Session (nếu có)
-                // =========================================================
-
-                // Chuyển hướng về trang chủ
-                header('Location: index.php');
-                exit();
-            } else {
-                $error = "Mật khẩu không chính xác!";
-            }
-        } else {
-            $error = "Email không tồn tại trong hệ thống!";
-        }
-        $stmt->close();
-    } else {
-        $error = "Vui lòng nhập đầy đủ email và mật khẩu!";
-    }
+// Tạo CSRF token nếu chưa có
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
+
+$csrf_token = $_SESSION['csrf_token'];
 ?>
 
 <!DOCTYPE html>
@@ -82,25 +45,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 
     <!-- Thông báo lỗi nếu đăng nhập thất bại -->
-    <?php if (isset($_GET['error'])): ?>
-        <div class="alert alert-danger text-center mb-3">
-            <?php 
-                if ($_GET['error'] == 'invalid') echo "Email hoặc mật khẩu không chính xác!";
-                elseif ($_GET['error'] == 'empty') echo "Vui lòng nhập đầy đủ thông tin!";
-            ?>
-        </div>
-    <?php endif; ?>
+    <div
+        id="loginMessage"
+        class="alert alert-danger text-center mb-3"
+        style="display: none;"
+    ></div>
 
     <!-- FORM ĐĂNG NHẬP -->
-    <form action="process-login.php" method="POST">
+    <form id="loginForm">
         <div class="form-group">
             <label for="email" class="font-weight-bold"><i class="fas fa-envelope mr-1"></i> Email sinh viên / Admin</label>
-            <input type="email" class="form-control" id="email" name="email" placeholder="student@campus.edu.vn" required>
+            <input type="email" 
+            class="form-control" 
+            id="email" 
+            name="email" 
+            placeholder="student@campus.edu.vn" 
+            required>
         </div>
 
         <div class="form-group">
             <label for="password" class="font-weight-bold"><i class="fas fa-lock mr-1"></i> Mật khẩu</label>
-            <input type="password" class="form-control" id="password" name="password" placeholder="••••••••" required>
+            <input type="password" 
+            class="form-control" 
+            id="password" 
+            name="password" 
+            placeholder="••••••••" required>
         </div>
 
         <button type="submit" class="btn btn-primary btn-block py-2 mt-4 font-weight-bold">
@@ -113,6 +82,66 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <p class="mt-2"><a href="index.php" class="text-muted"><i class="fas fa-arrow-left"></i> Quay lại trang chủ</a></p>
     </div>
 </div>
+
+<script>
+
+const loginForm = document.getElementById('loginForm');
+const loginMessage = document.getElementById('loginMessage');
+
+const CSRF_TOKEN = <?php echo json_encode($csrf_token); ?>;
+
+loginForm.addEventListener('submit', async function (event) {
+    // Ngăn form gửi request theo cách truyền thống
+    event.preventDefault();
+
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+
+    // Ẩn thông báo lỗi cũ
+    loginMessage.style.display = 'none';
+
+    try {
+        // Gửi thông tin đăng nhập đến REST API
+        const response = await fetch('api/auth/login.php', {
+            method: 'POST',
+
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': CSRF_TOKEN
+            },
+
+            credentials: 'same-origin',
+
+            body: JSON.stringify({
+                email: email,
+                password: password
+            })
+        });
+
+        // Đọc JSON từ API
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+            throw new Error(
+                result.message || 'Đăng nhập thất bại.'
+            );
+        }
+
+        // Đăng nhập thành công
+        alert(result.message);
+
+        // Chuyển về trang chủ
+        window.location.href = 'index.php';
+
+    } catch (error) {
+        // Hiển thị lỗi từ API
+        loginMessage.textContent = error.message;
+        loginMessage.style.display = 'block';
+    }
+});
+    
+</script>
+
 
 </body>
 </html>

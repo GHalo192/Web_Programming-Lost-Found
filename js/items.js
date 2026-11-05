@@ -1,3 +1,26 @@
+// ==========================================
+// CONFIGURATION
+// ==========================================
+
+const PAGE_MODE = window.ITEMS_CONFIG.mode;
+const API_URL = window.ITEMS_CONFIG.apiUrl;
+const PAGE_STATUS = window.ITEMS_CONFIG.status;
+const CSRF_TOKEN = window.ITEMS_CONFIG.csrfToken;
+
+// ==========================================
+// HTML ELEMENTS
+// ==========================================
+
+const postsContainer = document.getElementById('postsContainer');
+const paginationContainer = document.getElementById('paginationContainer');
+const searchForm = document.getElementById('searchForm');
+
+
+// ==========================================
+// Helper Functions
+// ==========================================
+
+// Escape HTML to prevent XSS
 function escapeHTML(value) {
 
     return String(value ?? '').replace(/[&<>"']/g, function(char) {
@@ -16,6 +39,7 @@ function escapeHTML(value) {
 
 }
 
+// Validate image URL
 function getImageURL(imageURL) {
 
     if (!imageURL) {
@@ -38,6 +62,7 @@ function getImageURL(imageURL) {
     return 'img/default.png';
 }
 
+// Format event date
 function formatDate(dateString) {
 
     if (!dateString) {
@@ -60,67 +85,161 @@ function formatDate(dateString) {
 
 }
 
+// Hiển thị badge loại bài đăng
+function renderTypeBadge(type) {
+
+    if (type === 'LOST') {
+        return `
+            <span class="badge badge-danger p-2"
+                    style="position: absolute; top: 10px; left: 10px;">
+                <i class="fas fa-exclamation-circle"></i> BÁO MẤT
+            </span>
+        `;
+    }
+
+    return `
+        <span class="badge badge-success p-2"
+                style="position: absolute; top: 10px; left: 10px;">
+            <i class="fas fa-hand-holding-heart"></i> NHẶT ĐƯỢC
+        </span>
+    `;
+}
+
+// Hiển thị badge trạng thái
+function renderStatusBadge(status) {
+
+    switch (status) {
+
+        case 'OPEN':
+            return `
+                <span class="badge badge-primary p-2"
+                    style="position: absolute; top: 10px; right: 10px;">
+                    <i class="fas fa-eye"></i> ĐANG MỞ
+                </span>
+            `;
+
+        case 'RESOLVED':
+            return `
+                <span class="badge badge-success p-2"
+                    style="position: absolute; top: 10px; right: 10px;">
+                    <i class="fas fa-check-circle"></i> ĐÃ GIẢI QUYẾT
+                </span>
+            `;
+
+        case 'CLOSED':
+            return `
+                <span class="badge badge-secondary p-2"
+                    style="position: absolute; top: 10px; right: 10px;">
+                    <i class="fas fa-lock"></i> ĐÃ ĐÓNG
+                </span>
+            `;
+
+        default:
+            return '';
+    }
+}
+
 // ==========================================
 // LOAD ITEMS FROM REST API
 // ==========================================
 
-async function loadItems(page = 1) {
+async function loadItems(page = 1, updateHistory = true) {
 
-    // Get filter values
-    const keyword = document.getElementById('keyword').value.trim();
-    const type = document.getElementById('type').value;
-    const category_id = document.getElementById('category_id').value;
-    const location_id = document.getElementById('location_id').value;
-
-    // Build query parameters
-    const params = new URLSearchParams();
-
-    if (keyword) params.append('keyword', keyword);
-    if (type) params.append('type', type);
-    if (category_id) params.append('category_id', category_id);
-    if (location_id) params.append('location_id', location_id);
-
-    params.append('status', PAGE_STATUS);
-    params.append('page', page);
-
-    // Update browser URL without reloading page
-    const queryString = params.toString();
-
-    history.pushState(
-        { page: page },
-        '',
-        'index.php?' + queryString
-    );
-
-    // Show loading message
     postsContainer.innerHTML = `
         <div class="col-12 text-center py-5">
-            <h4>Đang tải bài đăng...</h4>
+            <i class="fas fa-spinner fa-spin fa-2x text-muted"></i>
+            <p class="mt-3">Đang tải bài đăng...</p>
         </div>
     `;
 
-    paginationContainer.innerHTML = '';
+    const params = new URLSearchParams();
+
+    // ======================================
+    // PUBLIC MODE
+    // ======================================
+
+    if (PAGE_MODE === 'public') {
+
+        const keyword = document.getElementById('keyword').value.trim();
+        const type = document.getElementById('type').value;
+        const category_id = document.getElementById('category_id').value;
+        const location_id = document.getElementById('location_id').value;
+
+        if (keyword) params.append('keyword', keyword);
+        if (type) params.append('type', type);
+        if (category_id) params.append('category_id', category_id);
+        if (location_id) params.append('location_id', location_id);
+
+        params.append('status', PAGE_STATUS);
+        params.append('page', page);
+
+    }
+
+    // ======================================
+    // SELF MODE
+    // ======================================
+
+    else if (PAGE_MODE === 'self') {
+
+        const formData = new FormData(searchForm);
+
+        for (const [key, value] of formData.entries()) {
+
+            if (value.trim() !== '') {
+                params.append(key, value);
+            }
+
+        }
+
+        // API hiện tại của itemself chưa có phân trang
+        // nên chưa cần truyền page ở đây.
+    }
+
+    const queryString = params.toString();
+
+    if (PAGE_MODE === 'public' && updateHistory) {
+
+        history.pushState(
+            { page: page },
+            '',
+            window.location.pathname + '?' + queryString
+        );
+
+    }
+
+    const url = queryString
+        ? `${API_URL}?${queryString}`
+        : API_URL;
+
+    if (paginationContainer) {
+        paginationContainer.innerHTML = '';
+    }
 
     try {
 
-        // Send GET request to API
-        const response = await fetch(
-            API_URL + '?' + queryString
-        );
+        const response = await fetch(url, {
+            method: 'GET',
+            credentials: 'same-origin'
+        });
 
-        // Convert response to JSON
         const result = await response.json();
 
-        // Check HTTP status and API result
-        if (!response.ok || !result.success) {
-            throw new Error(result.message || 'Không thể tải dữ liệu');
+        if (response.status === 401) {
+            window.location.href = 'login.php';
+            return;
         }
 
-        // Render posts
+        if (!response.ok || !result.success) {
+            throw new Error(result.message || 'Không thể tải bài đăng.');
+        }
+
+        // Gọi function điều phối
         renderPosts(result.data);
 
-        // Render pagination
-        renderPagination(result.pagination);
+        // Chỉ render phân trang khi API có trả pagination
+        if (PAGE_MODE === 'public' && result.pagination) {
+            renderPagination(result.pagination);
+        }
 
     } catch (error) {
 
@@ -128,15 +247,176 @@ async function loadItems(page = 1) {
 
         postsContainer.innerHTML = `
             <div class="col-12 text-center py-5">
-                <h4 class="text-danger">
-                    Không thể tải bài đăng!
-                </h4>
-                <p>Vui lòng thử lại sau.</p>
+                <i class="fas fa-exclamation-circle fa-3x text-danger mb-3"></i>
+                <h4>Không thể tải danh sách bài đăng.</h4>
+                <p class="text-muted">${escapeHTML(error.message)}</p>
+                <button class="btn btn-outline-primary mt-2"
+                        onclick="loadItems()">
+                    Thử lại
+                </button>
             </div>
         `;
 
     }
+}
 
+// ==========================================
+// RENDER ITEMS
+// ==========================================
+
+function renderMyItem(item) {
+
+    const itemId = Number(item.item_id);
+
+    if (!Number.isInteger(itemId) || itemId <= 0) {
+        return '';
+    }
+
+    const imageURL = escapeHTML(getImageURL(item.image_url));
+    const title = escapeHTML(item.title);
+    const location = escapeHTML(item.location_name || 'Khác');
+    const createdAt = escapeHTML(formatDate(item.created_at));
+
+    const typeBadge = renderTypeBadge(item.type);
+    const statusBadge = renderStatusBadge(item.status);
+
+    // Status action buttons
+    let statusButtons = '';
+
+    if (item.status === 'OPEN') {
+
+        statusButtons = `
+            <button
+                type="button"
+                class="btn btn-sm btn-outline-success"
+                onclick="updateItemStatus(${itemId}, 'RESOLVED')">
+
+                <i class="fas fa-check"></i> Đã xong
+
+            </button>
+
+            <button
+                type="button"
+                class="btn btn-sm btn-outline-secondary"
+                onclick="updateItemStatus(${itemId}, 'CLOSED')">
+
+                <i class="fas fa-lock"></i> Đóng
+
+            </button>
+        `;
+
+    } else if (item.status === 'RESOLVED') {
+
+        statusButtons = `
+            <button
+                type="button"
+                class="btn btn-sm btn-outline-warning"
+                onclick="updateItemStatus(${itemId}, 'OPEN')">
+
+                <i class="fas fa-undo"></i> Mở lại
+
+            </button>
+
+            <button
+                type="button"
+                class="btn btn-sm btn-outline-secondary"
+                onclick="updateItemStatus(${itemId}, 'CLOSED')">
+
+                <i class="fas fa-lock"></i> Đóng
+
+            </button>
+        `;
+
+    } else if (item.status === 'CLOSED') {
+
+        statusButtons = `
+            <button
+                type="button"
+                class="btn btn-sm btn-secondary"
+                disabled>
+
+                <i class="fas fa-lock"></i> Đã đóng
+
+            </button>
+        `;
+
+    }
+
+    return `
+        <article class="col-12 col-md-6 tm-post mb-5">
+
+            <div class="border rounded p-3 h-100 d-flex flex-column justify-content-between shadow-sm">
+
+                <div>
+
+                    <div class="position-relative mb-3">
+
+                        <img
+                            src="${imageURL}"
+                            alt="Image"
+                            class="img-fluid rounded"
+                            style="height: 200px; width: 100%; object-fit: cover;"
+                            onerror="this.src='img/default.png';"
+                        >
+
+                        ${typeBadge}
+                        ${statusBadge}
+
+                    </div>
+
+                    <h4 class="tm-color-primary font-weight-bold">
+                        ${title}
+                    </h4>
+
+                    <p class="small text-muted mt-2">
+
+                        <strong>
+                            <i class="fas fa-map-marker-alt text-danger"></i>
+                            Địa điểm:
+                        </strong>
+                        ${location}
+
+                        <br>
+
+                        <strong>
+                            <i class="fas fa-clock text-info"></i>
+                            Ngày đăng:
+                        </strong>
+                        ${createdAt}
+
+                    </p>
+
+                </div>
+
+                <!-- ACTION BUTTONS -->
+                <div class="pt-3 border-top mt-3">
+
+                    <div class="btn-group w-100 mb-2" role="group">
+
+                        <a href="postedit.php?id=${itemId}"
+                        class="btn btn-sm btn-outline-primary">
+
+                            <i class="fas fa-edit"></i> Chỉnh sửa
+
+                        </a>
+
+                        ${statusButtons}
+
+                        <button
+                            type="button"
+                            class="btn btn-danger"
+                            onclick="deleteItem(${itemId})">
+                            Xóa bài đăng
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </article>
+    `;
 }
 
 
@@ -144,7 +424,7 @@ async function loadItems(page = 1) {
 // RENDER POSTS
 // ==========================================
 
-function renderPosts(items) {
+function renderPublicPosts(items) {
 
     // No posts found
     if (!items || items.length === 0) {
@@ -279,6 +559,43 @@ function renderPosts(items) {
 
 }
 
+function renderMyPosts(items) {
+
+    if (!Array.isArray(items) || items.length === 0) {
+
+        postsContainer.innerHTML = `
+            <div class="col-12 text-center py-5">
+
+                <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
+
+                <h4>Bạn chưa tạo bài đăng nào!</h4>
+
+                <a href="itempost.php" class="btn btn-primary mt-3">
+                    Tạo bài đăng ngay
+                </a>
+
+            </div>
+        `;
+
+        return;
+    }
+
+    postsContainer.innerHTML = items
+        .map(item => renderMyItem(item))
+        .join('');
+}
+
+function renderPosts(items) {
+
+    if (PAGE_MODE === 'public') {
+        renderPublicPosts(items);
+    }
+
+    else if (PAGE_MODE === 'self') {
+        renderMyPosts(items);
+    }
+
+}
 
 // ==========================================
 // RENDER PAGINATION
@@ -352,3 +669,155 @@ function renderPagination(pagination) {
 
 }
 
+
+// ==========================================
+// USER ACTIONS
+// ==========================================
+
+// Delete item
+async function deleteItem(itemId) {
+    // Xác nhận trước khi xóa
+    const confirmed = confirm(
+        "Bạn có chắc chắn muốn xóa bài đăng này không?"
+    );
+
+    if (!confirmed) {
+        return;
+    }
+
+    try {
+        const response = await fetch(
+            `api/items/item.php?id=${itemId}`,
+            {
+                method: "DELETE",
+                headers: {
+                    "X-CSRF-Token": CSRF_TOKEN
+                }
+            }
+        );
+
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+            alert(result.message || "Không thể xóa bài đăng.");
+            return;
+        }
+
+        alert("Xóa bài đăng thành công!");
+
+        // Tải lại danh sách bài đăng
+        window.location.reload();
+
+    } catch (error) {
+        console.error("Delete error:", error);
+        alert("Đã xảy ra lỗi khi kết nối đến máy chủ.");
+    }
+}
+
+// Update item status
+async function updateItemStatus(itemId, newStatus) {
+    try {
+        const response = await fetch(
+            `api/items/update-status.php?id=${encodeURIComponent(itemId)}`,
+            {
+                method: 'PATCH',
+                credentials: 'same-origin',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    status: newStatus
+                })
+            }
+        );
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            alert(result.message || 'Could not update item status.');
+            return;
+        }
+
+        alert(result.message);
+
+        // Reload the item list
+        loadItems();
+
+    } catch (error) {
+        console.error('Update status error:', error);
+        alert('An error occurred while updating the item.');
+    }
+}
+
+// ==========================================
+// SEARCH FORM EVENT
+// ==========================================
+
+if (searchForm) {
+
+    searchForm.addEventListener('submit', function(e) {
+
+        e.preventDefault();
+
+        loadItems(1);
+
+    });
+
+}
+
+
+// ==========================================
+// PAGINATION EVENT
+// ==========================================
+
+if (paginationContainer) {
+
+    paginationContainer.addEventListener('click', function(e) {
+
+        const pageLink = e.target.closest('[data-page]');
+
+        if (!pageLink) return;
+
+        e.preventDefault();
+
+        loadItems(Number(pageLink.dataset.page));
+
+    });
+
+}
+
+
+// ==========================================
+// BROWSER BACK / FORWARD
+// ==========================================
+
+window.addEventListener('popstate', function() {
+
+    if (PAGE_MODE !== 'public') return;
+
+    const params = new URLSearchParams(window.location.search);
+
+    document.getElementById('keyword').value =
+        params.get('keyword') || '';
+
+    document.getElementById('type').value =
+        params.get('type') || '';
+
+    document.getElementById('category_id').value =
+        params.get('category_id') || '';
+
+    document.getElementById('location_id').value =
+        params.get('location_id') || '';
+
+    const page = Number(params.get('page')) || 1;
+
+    loadItems(page, false);
+
+});
+
+
+// ==========================================
+// INITIAL LOAD
+// ==========================================
+
+loadItems(1);

@@ -285,7 +285,7 @@ try {
     $page = max(1, (int)($_GET['page'] ?? 1));
 
     // 4. Thiết lập phân trang
-    $limit = 5;
+    $limit = 6;
     $offset = ($page - 1) * $limit;
 
     // 5. Xây dựng điều kiện WHERE

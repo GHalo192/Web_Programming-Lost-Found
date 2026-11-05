@@ -14,96 +14,134 @@ if (empty($_SESSION['csrf_token'])) {
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Creating post</title>
-	<link rel="stylesheet" href="fontawesome/css/all.min.css"> <!-- https://fontawesome.com/ -->
-	<link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro&display=swap" rel="stylesheet"> <!-- https://fonts.google.com/ -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Campus Lost&Found</title>
+
+    <link rel="stylesheet" href="fontawesome/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro&display=swap" rel="stylesheet">
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link href="css/templatemo-xtra-blog.css" rel="stylesheet">
     <link href="css/custom.css" rel="stylesheet">
-    <!--
-    TemplateMo 553 Xtra Blog
-    https://templatemo.com/tm-553-xtra-blog
-    -->
 </head>
 
 <body>
 
-    <!-- vv THIS IS THE SIDE BAR vv -->
-	<header class="tm-header" id="tm-header">
-        <div class="tm-header-wrapper">
-            <button class="navbar-toggler" type="button" aria-label="Toggle navigation">
-                <i class="fas fa-bars"></i>
-            </button>
-            <!-- Logo -->
-            <div class="tm-site-header">
-                <div class="mb-3 mx-auto tm-site-logo"><i class="fas fa-times fa-2x"></i></div>            
-                <h1 class="text-center">Campus Lost&Found</h1>
-            </div>
-            <!-- Menu -->
+<!-- ==========================================
+     2. SIDEBAR
+========================================== -->
 
-            <nav class="tm-nav" id="tm-nav">            
-                <ul>
-                    <li class="tm-nav-item"><a href="index.php" class="tm-nav-link">
-                        <i class="fas fa-home"></i>Trang Chủ</a></li>
-                    <li class="tm-nav-item"><a href="itemself.php" class="tm-nav-link">
-                        <i class="fas fa-folder"></i>Đồ của tôi</a></li>
-                    <!-- Chỉ ADMIN được xem -->
-                    <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'ADMIN'): ?>
-                        <li class="tm-nav-item"><a href="itemresolved.php" class="tm-nav-link">
-                            <i class="fas fa-flag"></i>Đồ được đã tìm thấy</a></li>
-                        <li class="tm-nav-item"><a href="itemclosed.php" class="tm-nav-link">
-                            <i class="fas fa-flag"></i>Đồ được đã bị ẩn đi</a></li>
-                    <?php endif; ?>
+<header class="tm-header" id="tm-header">
 
-                    <li class="tm-nav-item active"><a href="itempost.php" class="tm-nav-link">
-                        <i class="fas fa-plus"></i>Báo nhặt / mất đồ</a></li>
-                </ul>
-            </nav>
+    <div class="tm-header-wrapper">
 
-            <!-- vv This is the account name and gmail vv -->
-            <div class="tm-mb-65 user-auth-box">
-                <?php if (isset($_SESSION['user_id'])): ?>
-                    <!-- Khi người dùng ĐÃ đăng nhập -->
-                    <div class="user-profile-info p-3 mb-2 bg-light rounded text-dark">
-                        <div class="font-weight-bold" style="font-size: 1.1rem;">
-                            <i class="fas fa-user-circle mr-1"></i> <?php echo htmlspecialchars($_SESSION['fullname'] ?? 'Thành viên'); ?>
-                        </div>
-                        <div class="text-muted small">
-                            <i class="fas fa-envelope mr-1"></i> <?php echo htmlspecialchars($_SESSION['email'] ?? ''); ?>
-                        </div>
-                    </div>
-                    <a href="logout.php" class="btn btn-outline-danger btn-block btn-sm">
-                        <i class="fas fa-sign-out-alt"></i> Đăng xuất
-                    </a>
-                <?php else: ?>
-                    <!-- Khi người dùng CHƯA đăng nhập -->
-                    <div class="d-flex flex-column flex-sm-row gap-2">
-                        <a href="login.php" class="btn btn-primary mr-0 mr-sm-2 mb-2 mb-sm-0">
-                            <i class="fas fa-sign-in-alt"></i> Đăng nhập
-                        </a>
-                        <a href="register.php" class="btn btn-outline-success">
-                            <i class="fas fa-user-plus"></i> Đăng ký
-                        </a>
-                    </div>
-                <?php endif; ?>
+        <button class="navbar-toggler" type="button" aria-label="Toggle navigation">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <div class="tm-site-header">
+            <div class="mb-3 mx-auto tm-site-logo">
+                <i class="fas fa-times fa-2x"></i>
             </div>
 
-            <!-- ^^ This is the account name and gmail ^^ -->
-
-            <h2 class="tm-mb-80 pr-5 text-white">
-                Tìm lại đồ thất lạc trong Campus
-            </h2>
-
-            <p class="tm-mb-80 pr-5 text-white">Hệ thống hỗ trợ kết nối người nhặt được đồ và người làm mất đồ trong khuôn viên nhà trường.</p>
-            
+            <h1 class="text-center">Campus Lost&Found</h1>
         </div>
-    </header>
-    <!-- ^^ THIS IS THE SIDE BAR ^^ -->
 
+        <nav class="tm-nav" id="tm-nav">
+            <ul>
+                <li class="tm-nav-item">
+                    <a href="index.php" class="tm-nav-link">
+                        <i class="fas fa-home"></i>Trang Chủ
+                    </a>
+                </li>
+
+                <li class="tm-nav-item">
+                    <a href="itemself.php" class="tm-nav-link">
+                        <i class="fas fa-folder"></i>Đồ của tôi
+                    </a>
+                </li>
+
+                <li class="tm-nav-item active">
+                    <a href="itemresolved.php" class="tm-nav-link">
+                        <i class="fas fa-flag"></i>Đồ được đã tìm thấy
+                    </a>
+                </li>
+                
+                <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'ADMIN'): ?>
+
+                    <li class="tm-nav-item">
+                        <a href="itemclosed.php" class="tm-nav-link">
+                            <i class="fas fa-flag"></i>Đồ được đã bị ẩn đi
+                        </a>
+                    </li>
+
+                <?php endif; ?>
+
+                <li class="tm-nav-item">
+                    <a href="itempost.php" class="tm-nav-link">
+                        <i class="fas fa-plus"></i>Báo nhặt / mất đồ
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Account information -->
+
+        <div class="tm-mb-65 user-auth-box">
+
+            <?php if (isset($_SESSION['user_id'])): ?>
+
+                <div class="user-profile-info p-3 mb-2 bg-light rounded text-dark">
+
+                    <div class="font-weight-bold" style="font-size: 1.1rem;">
+                        <i class="fas fa-user-circle mr-1"></i>
+
+                        <?php echo htmlspecialchars($_SESSION['fullname'] ?? 'Thành viên'); ?>
+                    </div>
+
+                    <div class="text-muted small">
+                        <i class="fas fa-envelope mr-1"></i>
+
+                        <?php echo htmlspecialchars($_SESSION['email'] ?? ''); ?>
+                    </div>
+
+                </div>
+
+                <a href="logout.php" class="btn btn-outline-danger btn-block btn-sm">
+                    <i class="fas fa-sign-out-alt"></i> Đăng xuất
+                </a>
+
+            <?php else: ?>
+
+                <div class="d-flex flex-column flex-sm-row gap-2">
+
+                    <a href="login.php" class="btn btn-primary mr-0 mr-sm-2 mb-2 mb-sm-0">
+                        <i class="fas fa-sign-in-alt"></i> Đăng nhập
+                    </a>
+
+                    <a href="register.php" class="btn btn-outline-success">
+                        <i class="fas fa-user-plus"></i> Đăng ký
+                    </a>
+
+                </div>
+
+            <?php endif; ?>
+
+        </div>
+
+        <h2 class="tm-mb-80 pr-5 text-white">
+            Tìm lại đồ thất lạc trong Campus
+        </h2>
+
+        <p class="tm-mb-80 pr-5 text-white">
+            Hệ thống hỗ trợ kết nối người nhặt được đồ và người làm mất đồ trong khuôn viên nhà trường.
+        </p>
+
+    </div>
+</header>
 
     <main class="tm-main">
         <!-- Form Đăng Tin Main Content -->
@@ -124,9 +162,6 @@ if (empty($_SESSION['csrf_token'])) {
                     name="csrf_token"
                     value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>"
                 >                    
-                
-                
-                
                 
                 <!-- 1. Loại tin đăng -->
                     <div class="form-group row mb-4">
@@ -199,7 +234,7 @@ if (empty($_SESSION['csrf_token'])) {
                                 <option value="19">Bãi xe tòa G</option>
                                 <option value="20">Bãi xe nhà thi đấu</option>
                                 <option value="21">Khác</option>
-                                <!-- Còn nhiều nữa, thêm vào sau -->
+                                <!-- nếu còn nữa, thêm vào sau -->
                             </select>
                         </div>
                     </div>
@@ -277,7 +312,7 @@ if (empty($_SESSION['csrf_token'])) {
         // Lấy dữ liệu từ form
         const formData = new FormData(postForm);
 
-        const csrfToken = formData.get('csrf_token');
+        const CSRF_TOKEN = formData.get('csrf_token');
 
         try {
 
@@ -287,7 +322,7 @@ if (empty($_SESSION['csrf_token'])) {
                 credentials: 'same-origin',
 
                 headers: {
-                    'X-CSRF-Token': csrfToken
+                    'X-CSRF-Token': CSRF_TOKEN
                 },
 
                 body: formData

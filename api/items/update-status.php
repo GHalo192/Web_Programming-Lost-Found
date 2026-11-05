@@ -42,6 +42,10 @@ if (
 
 $current_user_id = (int) $_SESSION['user_id'];
 
+// check token goes here
+
+
+
 // Get item ID from URL
 $item_id = filter_input(
     INPUT_GET,
