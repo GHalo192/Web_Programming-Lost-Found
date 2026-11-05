@@ -136,19 +136,30 @@ try {
     // Kiểm tra quyền
     if ($is_admin) {
 
-        // Admin chỉ được mở lại bài CLOSED thành OPEN,
-        // hoặc đóng một bài viết chưa CLOSED.
+        // Admin có thể mở lại bài CLOSED thành OPEN
         $can_reopen = (
             $current_status === 'CLOSED' &&
             $new_status === 'OPEN'
         );
 
+        // Admin có thể đóng bài viết chưa CLOSED
         $can_close = (
             $new_status === 'CLOSED' &&
             $current_status !== 'CLOSED'
         );
 
-        if (!$can_reopen && !$can_close) {
+        // Nếu Admin cũng là chủ bài đăng,
+        // Admin được sử dụng quyền quản lý như người dùng thường.
+        $can_manage_own_item = (
+            $is_owner &&
+            $current_status !== 'CLOSED'
+        );
+
+        if (
+            !$can_reopen &&
+            !$can_close &&
+            !$can_manage_own_item
+        ) {
             $conn->rollback();
 
             apiRespond(403, [
