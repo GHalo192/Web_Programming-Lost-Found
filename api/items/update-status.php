@@ -6,7 +6,7 @@ header('Content-Type: application/json; charset=utf-8');
 
 require_once __DIR__ . '/../../db.php';
 
-// Return JSON response
+// Trả về JSON
 function respond(int $status, array $body): void {
     http_response_code($status);
 
@@ -18,7 +18,7 @@ function respond(int $status, array $body): void {
     exit;
 }
 
-// Only allow PATCH
+// Chỉ chấp nhận PATCH
 if ($_SERVER['REQUEST_METHOD'] !== 'PATCH') {
     header('Allow: PATCH');
 
@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'PATCH') {
     ]);
 }
 
-// Check login
+// Kiểm tra đăng nhập
 if (
     !isset($_SESSION['user_id']) ||
     !is_numeric($_SESSION['user_id']) ||
@@ -41,12 +41,24 @@ if (
 }
 
 $current_user_id = (int) $_SESSION['user_id'];
+$is_admin = isset($_SESSION['role']) &&
+            $_SESSION['role'] === 'ADMIN';
 
-// check token goes here
+// Kiểm tra CSRF Token
+$csrf_token = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
 
+if (
+    empty($_SESSION['csrf_token']) ||
+    empty($csrf_token) ||
+    !hash_equals($_SESSION['csrf_token'], $csrf_token)
+) {
+    respond(403, [
+        'success' => false,
+        'message' => 'Invalid CSRF token.'
+    ]);
+}
 
-
-// Get item ID from URL
+// Lấy ID bài viết từ URL
 $item_id = filter_input(
     INPUT_GET,
     'id',
@@ -60,7 +72,7 @@ if ($item_id === false || $item_id === null || $item_id <= 0) {
     ]);
 }
 
-// Read JSON request body
+// Đọc JSON request body
 $raw_body = file_get_contents('php://input');
 $body = json_decode($raw_body, true);
 
@@ -71,7 +83,7 @@ if (!is_array($body) || !isset($body['status'])) {
     ]);
 }
 
-// Validate new status
+// Kiểm tra trạng thái mới
 $new_status = $body['status'];
 
 $allowed_statuses = ['OPEN', 'RESOLVED', 'CLOSED'];
@@ -87,10 +99,10 @@ if (
 }
 
 try {
-    // Start transaction
+    // Bắt đầu transaction
     $conn->begin_transaction();
 
-    // Find item and lock the row
+    // Lấy thông tin bài viết và khóa dòng dữ liệu
     $stmt = $conn->prepare("
         SELECT item_id, user_id, status
         FROM Items
@@ -106,7 +118,7 @@ try {
 
     $stmt->close();
 
-    // Check whether item exists
+    // Kiểm tra bài viết tồn tại
     if (!$item) {
         $conn->rollback();
 
@@ -116,32 +128,59 @@ try {
         ]);
     }
 
-    // Check ownership
-    if ((int) $item['user_id'] !== $current_user_id) {
-        $conn->rollback();
-
-        respond(403, [
-            'success' => false,
-            'message' => 'You do not have permission to update this item.'
-        ]);
-    }
-
+    $owner_id = (int) $item['user_id'];
     $current_status = $item['status'];
 
-    // CLOSED is a final state
-    if (
-        $current_status === 'CLOSED' &&
-        $new_status !== 'CLOSED'
-    ) {
-        $conn->rollback();
+    $is_owner = ($owner_id === $current_user_id);
 
-        respond(409, [
-            'success' => false,
-            'message' => 'A closed item cannot change its status.'
-        ]);
+    // Kiểm tra quyền
+    if ($is_admin) {
+
+        // Admin chỉ được mở lại bài CLOSED thành OPEN,
+        // hoặc đóng một bài viết chưa CLOSED.
+        $can_reopen = (
+            $current_status === 'CLOSED' &&
+            $new_status === 'OPEN'
+        );
+
+        $can_close = (
+            $new_status === 'CLOSED' &&
+            $current_status !== 'CLOSED'
+        );
+
+        if (!$can_reopen && !$can_close) {
+            $conn->rollback();
+
+            respond(403, [
+                'success' => false,
+                'message' => 'Admin is not allowed to perform this status change.'
+            ]);
+        }
+
+    } else {
+
+        // Người dùng thường chỉ được quản lý bài viết của mình
+        if (!$is_owner) {
+            $conn->rollback();
+
+            respond(403, [
+                'success' => false,
+                'message' => 'You do not have permission to update this item.'
+            ]);
+        }
+
+        // Chủ bài viết không được thay đổi bài đã CLOSED
+        if ($current_status === 'CLOSED') {
+            $conn->rollback();
+
+            respond(409, [
+                'success' => false,
+                'message' => 'A closed item cannot change its status.'
+            ]);
+        }
     }
 
-    // No update needed if status is unchanged
+    // Không cần cập nhật nếu trạng thái không thay đổi
     if ($current_status === $new_status) {
         $conn->commit();
 
@@ -155,22 +194,14 @@ try {
         ]);
     }
 
-    // Update item status
+    // Cập nhật trạng thái
     $stmt = $conn->prepare("
         UPDATE Items
         SET status = ?
         WHERE item_id = ?
-        AND user_id = ?
-        AND status <> 'CLOSED'
     ");
 
-    $stmt->bind_param(
-        'sii',
-        $new_status,
-        $item_id,
-        $current_user_id
-    );
-
+    $stmt->bind_param('si', $new_status, $item_id);
     $stmt->execute();
     $stmt->close();
 

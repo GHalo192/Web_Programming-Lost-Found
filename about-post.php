@@ -323,6 +323,7 @@ function renderOwnerActions(post) {
 }
 
 // Tạo các nút quản lý dành cho ADMIN
+
 function renderAdminActions(post) {
     if (!IS_ADMIN) return '';
 
@@ -335,25 +336,19 @@ function renderAdminActions(post) {
 
             <div class="d-flex flex-wrap gap-2">
 
-                ${post.status !== 'OPEN' ? `
+                ${post.status === 'CLOSED' ? `
                     <button class="btn btn-sm btn-outline-warning mr-2 mb-1"
                             onclick="updatePostStatus('OPEN')">
-                        <i class="fas fa-folder-open"></i> Đổi thành OPEN
-                    </button>
-                ` : ''}
-
-                ${post.status !== 'RESOLVED' && post.status !== 'CLOSED' ? `
-                    <button class="btn btn-sm btn-outline-success mr-2 mb-1"
-                            onclick="updatePostStatus('RESOLVED')">
-                        <i class="fas fa-check-circle"></i>
-                        Đổi thành RESOLVED
+                        <i class="fas fa-folder-open"></i>
+                        Mở lại bài viết
                     </button>
                 ` : ''}
 
                 ${post.status !== 'CLOSED' ? `
                     <button class="btn btn-sm btn-dark mr-2 mb-1"
                             onclick="updatePostStatus('CLOSED')">
-                        <i class="fas fa-eye-slash"></i> Ẩn bài
+                        <i class="fas fa-eye-slash"></i>
+                        Đóng bài viết
                     </button>
                 ` : ''}
 
@@ -361,6 +356,7 @@ function renderAdminActions(post) {
         </div>
     `;
 }
+
 
 // Hiển thị toàn bộ thông tin bài đăng
 function renderPost(post) {

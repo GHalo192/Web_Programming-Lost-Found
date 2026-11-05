@@ -294,7 +294,7 @@ session_start();
     window.ITEMS_CONFIG = {
         mode: 'public',
         apiUrl: 'api/items/index.php',
-        status: 'RESOLVED'
+        status: 'CLOSED'
     };
 </script>
 

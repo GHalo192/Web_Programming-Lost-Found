@@ -99,8 +99,6 @@ $csrf_token = $_SESSION['csrf_token'];
 </div>
 
 <script>
-
-
 const registerForm = document.getElementById('registerForm');
 const registerMessage = document.getElementById('registerMessage');
 
@@ -163,7 +161,6 @@ registerForm.addEventListener('submit', async function (event) {
         registerMessage.style.display = 'block';
     }
 });
-
 
 </script>
 
