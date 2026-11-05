@@ -283,7 +283,8 @@ session_start();
 <script src="js/jquery.min.js"></script>
 <script src="js/templatemo-script.js"></script>
 <script src="custom.js"></script>
-
+<script src="js/common.js"></script>
+<script src="js/items.js" defer></script>
 
 <!-- ==========================================
      8. REST API JAVASCRIPT
@@ -297,7 +298,6 @@ session_start();
     };
 </script>
 
-<script src="js/items.js" defer></script>
 
 </body>
 </html>

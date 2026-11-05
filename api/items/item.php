@@ -10,7 +10,7 @@ require_once __DIR__ . '/../../db.php';
 // 1. HELPER FUNCTIONS
 // --------------------------------------------------
 
-function respond(int $status, array $body): void {
+function apiRespond(int $status, array $body): void {
     http_response_code($status);
 
     echo json_encode(
@@ -24,7 +24,7 @@ function respond(int $status, array $body): void {
 // Kiểm tra người dùng đã đăng nhập
 function requireLogin(): int {
     if (!isset($_SESSION['user_id'])) {
-        respond(401, [
+        apiRespond(401, [
             'success' => false,
             'message' => 'Bạn cần đăng nhập.'
         ]);
@@ -33,7 +33,7 @@ function requireLogin(): int {
     $userId = (int) $_SESSION['user_id'];
 
     if ($userId <= 0) {
-        respond(401, [
+        apiRespond(401, [
             'success' => false,
             'message' => 'Invalid user session.'
         ]);
@@ -51,7 +51,7 @@ function verifyCsrf(): void {
         $token === '' ||
         !hash_equals($_SESSION['csrf_token'], $token)
     ) {
-        respond(403, [
+        apiRespond(403, [
             'success' => false,
             'message' => 'Invalid CSRF token.'
         ]);
@@ -114,7 +114,7 @@ if (
 $itemId = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 
 if ($itemId === false || $itemId === null || $itemId <= 0) {
-    respond(400, [
+    apiRespond(400, [
         'success' => false,
         'message' => 'Invalid item ID.'
     ]);
@@ -144,7 +144,7 @@ if ($method === 'GET') {
     $stmt = $conn->prepare($sql);
 
     if (!$stmt) {
-        respond(500, [
+        apiRespond(500, [
             'success' => false,
             'message' => 'Database query failed.'
         ]);
@@ -159,7 +159,7 @@ if ($method === 'GET') {
     $stmt->close();
 
     if (!$item) {
-        respond(404, [
+        apiRespond(404, [
             'success' => false,
             'message' => 'Không tìm thấy bài đăng hoặc bạn không có quyền truy cập.'
         ]);
@@ -195,7 +195,7 @@ if ($method === 'GET') {
         }
     }
 
-    respond(200, [
+    apiRespond(200, [
         'success' => true,
         'data' => $item,
         'categories' => $categories,
@@ -227,7 +227,7 @@ if ($method === 'PATCH') {
     $checkStmt->close();
 
     if (!$existingItem) {
-        respond(404, [
+        apiRespond(404, [
             'success' => false,
             'message' => 'Không tìm thấy bài đăng hoặc bạn không có quyền chỉnh sửa.'
         ]);
@@ -240,7 +240,7 @@ if ($method === 'PATCH') {
         $input = json_decode(file_get_contents('php://input'), true);
 
         if (!is_array($input)) {
-            respond(400, [
+            apiRespond(400, [
                 'success' => false,
                 'message' => 'Invalid JSON body.'
             ]);
@@ -270,7 +270,7 @@ if ($method === 'PATCH') {
         $contactPhone === '' ||
         $dateEvent === ''
     ) {
-        respond(400, [
+        apiRespond(400, [
             'success' => false,
             'message' => 'Vui lòng điền đầy đủ các trường bắt buộc.'
         ]);
@@ -278,14 +278,14 @@ if ($method === 'PATCH') {
 
     // Kiểm tra độ dài
     if (strlen($title) > 255) {
-        respond(400, [
+        apiRespond(400, [
             'success' => false,
             'message' => 'Tiêu đề không được vượt quá 255 ký tự.'
         ]);
     }
 
     if (strlen($contactPhone) > 20) {
-        respond(400, [
+        apiRespond(400, [
             'success' => false,
             'message' => 'Số điện thoại không được vượt quá 20 ký tự.'
         ]);
@@ -293,7 +293,7 @@ if ($method === 'PATCH') {
 
     // Kiểm tra loại bài đăng
     if (!in_array($type, ['LOST', 'FOUND'], true)) {
-        respond(400, [
+        apiRespond(400, [
             'success' => false,
             'message' => 'Invalid item type.'
         ]);
@@ -301,14 +301,14 @@ if ($method === 'PATCH') {
 
     // Kiểm tra danh mục và khu vực
     if ($categoryId === false || $categoryId === null || $categoryId <= 0) {
-        respond(400, [
+        apiRespond(400, [
             'success' => false,
             'message' => 'Vui lòng chọn danh mục hợp lệ.'
         ]);
     }
 
     if ($locationId === false || $locationId === null || $locationId <= 0) {
-        respond(400, [
+        apiRespond(400, [
             'success' => false,
             'message' => 'Vui lòng chọn khu vực hợp lệ.'
         ]);
@@ -322,7 +322,7 @@ if ($method === 'PATCH') {
     }
 
     if (!validateDateTime($dateEvent)) {
-        respond(400, [
+        apiRespond(400, [
             'success' => false,
             'message' => 'Ngày xảy ra sự việc không hợp lệ.'
         ]);
@@ -345,7 +345,7 @@ if ($method === 'PATCH') {
         $file = $_FILES['image'];
 
         if ($file['error'] !== UPLOAD_ERR_OK) {
-            respond(400, [
+            apiRespond(400, [
                 'success' => false,
                 'message' => 'Lỗi khi tải ảnh lên.'
             ]);
@@ -355,14 +355,14 @@ if ($method === 'PATCH') {
         $maxSize = 5 * 1024 * 1024;
 
         if ($file['size'] > $maxSize) {
-            respond(400, [
+            apiRespond(400, [
                 'success' => false,
                 'message' => 'Ảnh không được vượt quá 5 MB.'
             ]);
         }
 
         if (!is_uploaded_file($file['tmp_name'])) {
-            respond(400, [
+            apiRespond(400, [
                 'success' => false,
                 'message' => 'Invalid uploaded file.'
             ]);
@@ -381,7 +381,7 @@ if ($method === 'PATCH') {
         ];
 
         if (!isset($allowedTypes[$mimeType])) {
-            respond(400, [
+            apiRespond(400, [
                 'success' => false,
                 'message' => 'Chỉ chấp nhận ảnh JPG, PNG, GIF hoặc WEBP.'
             ]);
@@ -389,7 +389,7 @@ if ($method === 'PATCH') {
 
         // Kiểm tra file có thực sự là ảnh
         if (getimagesize($file['tmp_name']) === false) {
-            respond(400, [
+            apiRespond(400, [
                 'success' => false,
                 'message' => 'File tải lên không phải hình ảnh hợp lệ.'
             ]);
@@ -400,7 +400,7 @@ if ($method === 'PATCH') {
 
         if (!is_dir($uploadDir)) {
             if (!mkdir($uploadDir, 0755, true)) {
-                respond(500, [
+                apiRespond(500, [
                     'success' => false,
                     'message' => 'Không thể tạo thư mục lưu ảnh.'
                 ]);
@@ -412,7 +412,7 @@ if ($method === 'PATCH') {
             $filename = bin2hex(random_bytes(16))
                 . '.' . $allowedTypes[$mimeType];
         } catch (Throwable $e) {
-            respond(500, [
+            apiRespond(500, [
                 'success' => false,
                 'message' => 'Không thể tạo tên file.'
             ]);
@@ -421,7 +421,7 @@ if ($method === 'PATCH') {
         $destination = $uploadDir . $filename;
 
         if (!move_uploaded_file($file['tmp_name'], $destination)) {
-            respond(500, [
+            apiRespond(500, [
                 'success' => false,
                 'message' => 'Không thể lưu ảnh.'
             ]);
@@ -460,7 +460,7 @@ if ($method === 'PATCH') {
             unlink($newImagePath);
         }
 
-        respond(500, [
+        apiRespond(500, [
             'success' => false,
             'message' => 'Database query failed.'
         ]);
@@ -489,7 +489,7 @@ if ($method === 'PATCH') {
             unlink($newImagePath);
         }
 
-        respond(500, [
+        apiRespond(500, [
             'success' => false,
             'message' => 'Không thể cập nhật bài đăng.'
         ]);
@@ -502,7 +502,7 @@ if ($method === 'PATCH') {
         deleteStoredImage($existingItem['image_url']);
     }
 
-    respond(200, [
+    apiRespond(200, [
         'success' => true,
         'message' => 'Cập nhật bài đăng thành công.',
         'data' => [
@@ -536,7 +536,7 @@ if ($method === 'DELETE') {
     $checkStmt->close();
 
     if (!$existingItem) {
-        respond(404, [
+        apiRespond(404, [
             'success' => false,
             'message' => 'Không tìm thấy bài đăng hoặc bạn không có quyền xóa.'
         ]);
@@ -552,7 +552,7 @@ if ($method === 'DELETE') {
     if (!$stmt->execute()) {
         $stmt->close();
 
-        respond(500, [
+        apiRespond(500, [
             'success' => false,
             'message' => 'Không thể xóa bài đăng.'
         ]);
@@ -563,7 +563,7 @@ if ($method === 'DELETE') {
     // Xóa ảnh sau khi xóa bài đăng thành công
     deleteStoredImage($existingItem['image_url']);
 
-    respond(200, [
+    apiRespond(200, [
         'success' => true,
         'message' => 'Xóa bài đăng thành công.'
     ]);
@@ -575,7 +575,7 @@ if ($method === 'DELETE') {
 
 header('Allow: GET, PATCH, DELETE, POST');
 
-respond(405, [
+apiRespond(405, [
     'success' => false,
     'message' => 'Method not allowed.'
 ]);

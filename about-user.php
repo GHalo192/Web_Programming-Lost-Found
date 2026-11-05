@@ -194,6 +194,7 @@ $profile_id = isset($_GET['id']) && is_numeric($_GET['id'])
     <script src="custom.js"></script>
     <script src="js/jquery.min.js"></script>
     <script src="js/templatemo-script.js"></script>
+    <script src="js/common.js"></script>
 
     <script>
 
@@ -206,47 +207,6 @@ $profile_id = isset($_GET['id']) && is_numeric($_GET['id'])
         const totalItems = document.getElementById('totalItems');
         const itemsContainer = document.getElementById('itemsContainer');
 
-        // Chuyển dữ liệu thành HTML an toàn
-        function escapeHTML(value) {
-            return String(value ?? '').replace(/[&<>"']/g, char => ({
-                '&': '&amp;',
-                '<': '&lt;',
-                '>': '&gt;',
-                '"': '&quot;',
-                "'": '&#039;'
-            })[char]);
-        }
-
-        // Xử lý đường dẫn hình ảnh
-        function getImageURL(imageURL) {
-            if (!imageURL) return 'img/huhDog.jpg';
-
-            const value = String(imageURL).trim();
-
-            if (/^https?:\/\//i.test(value)) return value;
-
-            if (
-                value.startsWith('/') ||
-                value.startsWith('./') ||
-                value.startsWith('../') ||
-                value.startsWith('uploads/')
-            ) {
-                return value;
-            }
-
-            return 'img/huhDog.jpg';
-        }
-
-        // Định dạng ngày giờ
-        function formatDate(dateString) {
-            if (!dateString) return 'Không rõ';
-
-            const date = new Date(dateString.replace(' ', 'T'));
-
-            if (isNaN(date.getTime())) return 'Không rõ';
-
-            return date.toLocaleString('vi-VN');
-        }
 
         // Định dạng ngày tham gia
         function formatJoinDate(dateString) {
@@ -259,24 +219,6 @@ $profile_id = isset($_GET['id']) && is_numeric($_GET['id'])
             return date.toLocaleDateString('vi-VN');
         }
 
-        // Hiển thị nhãn loại bài đăng
-        function renderTypeBadge(type) {
-            if (type === 'LOST') {
-                return `
-                    <span class="badge badge-danger p-2 style-badge"
-                        style="position: absolute; top: 15px; left: 15px;">
-                        <i class="fas fa-exclamation-circle"></i> BÁO MẤT
-                    </span>
-                `;
-            }
-
-            return `
-                <span class="badge badge-success p-2 style-badge"
-                    style="position: absolute; top: 15px; left: 15px;">
-                    <i class="fas fa-hand-holding-heart"></i> NHẶT ĐƯỢC
-                </span>
-            `;
-        }
 
         // Hiển thị thông tin người dùng
         function renderProfile(user) {

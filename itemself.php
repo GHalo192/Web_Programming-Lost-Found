@@ -262,7 +262,8 @@ if (empty($_SESSION['csrf_token'])) {
     <script src="custom.js"></script>
     <script src="js/jquery.min.js"></script>
     <script src="js/templatemo-script.js"></script>
-
+    <script src="js/common.js"></script>
+    <script src="js/items.js" defer></script>
     <!-- REST API -->
     <script>
         window.ITEMS_CONFIG = {
@@ -272,7 +273,7 @@ if (empty($_SESSION['csrf_token'])) {
         };
     </script>
 
-    <script src="js/items.js" defer></script>
+    
 
 </body>
 </html>

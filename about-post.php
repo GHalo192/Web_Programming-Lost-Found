@@ -191,7 +191,7 @@ $item_id = isset($_GET['id']) && is_numeric($_GET['id'])
     <script src="custom.js"></script>
     <script src="js/jquery.min.js"></script>
     <script src="js/templatemo-script.js"></script>
-
+    <script src="js/common.js"></script>
 
 <script>
 const ITEM_ID = <?php echo json_encode($item_id); ?>;
@@ -214,75 +214,8 @@ const CSRF_TOKEN = <?php
 const API_URL = 'api/items/detail.php';
 const postContainer = document.getElementById('postContainer');
 
-// Chuyển dữ liệu thành text an toàn trước khi đưa vào HTML
-function escapeHTML(value) {
-    return String(value ?? '').replace(/[&<>"']/g, char => ({
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#039;'
-    })[char]);
-}
 
-// Xử lý đường dẫn hình ảnh
-function getImageURL(imageURL) {
-    if (!imageURL) return 'img/default.png';
 
-    const value = String(imageURL).trim();
-
-    if (/^https?:\/\//i.test(value)) return value;
-
-    if (
-        value.startsWith('/') ||
-        value.startsWith('./') ||
-        value.startsWith('../') ||
-        value.startsWith('uploads/')
-    ) {
-        return value;
-    }
-
-    return 'img/default.png';
-}
-
-// Định dạng ngày giờ
-function formatDate(dateString) {
-    if (!dateString) return 'Không rõ';
-
-    const date = new Date(dateString.replace(' ', 'T'));
-
-    if (isNaN(date.getTime())) return 'Không rõ';
-
-    return date.toLocaleString('vi-VN');
-}
-
-// Hiển thị nhãn loại bài đăng
-function renderTypeBadge(type) {
-    if (type === 'LOST') {
-        return `
-            <span class="badge badge-danger p-2" style="font-size: 1rem;">
-                <i class="fas fa-exclamation-circle"></i> BÁO MẤT ĐỒ
-            </span>
-        `;
-    }
-
-    return `
-        <span class="badge badge-success p-2" style="font-size: 1rem;">
-            <i class="fas fa-hand-holding-heart"></i> NHẶT ĐƯỢC ĐỒ
-        </span>
-    `;
-}
-
-// Hiển thị nhãn trạng thái
-function renderStatusBadge(status) {
-    const badges = {
-        OPEN: '<span class="badge badge-primary">Đang công khai</span>',
-        RESOLVED: '<span class="badge badge-success">Đã giải quyết</span>',
-        CLOSED: '<span class="badge badge-secondary">Đã ẩn</span>'
-    };
-
-    return badges[status] || '';
-}
 
 // Tạo các nút quản lý dành cho chủ bài đăng
 function renderOwnerActions(post) {

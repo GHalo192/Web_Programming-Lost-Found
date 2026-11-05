@@ -7,7 +7,7 @@ header('Content-Type: application/json; charset=utf-8');
 require_once __DIR__ . '/../../db.php';
 
 // Trả về JSON
-function respond(int $status, array $body): void {
+function apiRespond(int $status, array $body): void {
     http_response_code($status);
 
     echo json_encode(
@@ -22,7 +22,7 @@ function respond(int $status, array $body): void {
 if ($_SERVER['REQUEST_METHOD'] !== 'PATCH') {
     header('Allow: PATCH');
 
-    respond(405, [
+    apiRespond(405, [
         'success' => false,
         'message' => 'Method not allowed.'
     ]);
@@ -34,7 +34,7 @@ if (
     !is_numeric($_SESSION['user_id']) ||
     (int) $_SESSION['user_id'] <= 0
 ) {
-    respond(401, [
+    apiRespond(401, [
         'success' => false,
         'message' => 'You must log in first.'
     ]);
@@ -52,7 +52,7 @@ if (
     empty($csrf_token) ||
     !hash_equals($_SESSION['csrf_token'], $csrf_token)
 ) {
-    respond(403, [
+    apiRespond(403, [
         'success' => false,
         'message' => 'Invalid CSRF token.'
     ]);
@@ -66,7 +66,7 @@ $item_id = filter_input(
 );
 
 if ($item_id === false || $item_id === null || $item_id <= 0) {
-    respond(400, [
+    apiRespond(400, [
         'success' => false,
         'message' => 'Invalid item ID.'
     ]);
@@ -77,7 +77,7 @@ $raw_body = file_get_contents('php://input');
 $body = json_decode($raw_body, true);
 
 if (!is_array($body) || !isset($body['status'])) {
-    respond(400, [
+    apiRespond(400, [
         'success' => false,
         'message' => 'Missing status field.'
     ]);
@@ -92,7 +92,7 @@ if (
     !is_string($new_status) ||
     !in_array($new_status, $allowed_statuses, true)
 ) {
-    respond(400, [
+    apiRespond(400, [
         'success' => false,
         'message' => 'Invalid status.'
     ]);
@@ -122,7 +122,7 @@ try {
     if (!$item) {
         $conn->rollback();
 
-        respond(404, [
+        apiRespond(404, [
             'success' => false,
             'message' => 'Item not found.'
         ]);
@@ -151,7 +151,7 @@ try {
         if (!$can_reopen && !$can_close) {
             $conn->rollback();
 
-            respond(403, [
+            apiRespond(403, [
                 'success' => false,
                 'message' => 'Admin is not allowed to perform this status change.'
             ]);
@@ -163,7 +163,7 @@ try {
         if (!$is_owner) {
             $conn->rollback();
 
-            respond(403, [
+            apiRespond(403, [
                 'success' => false,
                 'message' => 'You do not have permission to update this item.'
             ]);
@@ -173,7 +173,7 @@ try {
         if ($current_status === 'CLOSED') {
             $conn->rollback();
 
-            respond(409, [
+            apiRespond(409, [
                 'success' => false,
                 'message' => 'A closed item cannot change its status.'
             ]);
@@ -184,7 +184,7 @@ try {
     if ($current_status === $new_status) {
         $conn->commit();
 
-        respond(200, [
+        apiRespond(200, [
             'success' => true,
             'message' => 'Item status is already up to date.',
             'data' => [
@@ -207,7 +207,7 @@ try {
 
     $conn->commit();
 
-    respond(200, [
+    apiRespond(200, [
         'success' => true,
         'message' => 'Item status updated successfully.',
         'data' => [
@@ -223,7 +223,7 @@ try {
 
     error_log('Update item status error: ' . $e->getMessage());
 
-    respond(500, [
+    apiRespond(500, [
         'success' => false,
         'message' => 'An internal server error occurred.'
     ]);

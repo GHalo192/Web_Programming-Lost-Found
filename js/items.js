@@ -17,129 +17,6 @@ const searchForm = document.getElementById('searchForm');
 
 
 // ==========================================
-// Helper Functions
-// ==========================================
-
-// Escape HTML to prevent XSS
-function escapeHTML(value) {
-
-    return String(value ?? '').replace(/[&<>"']/g, function(char) {
-
-        const entities = {
-            '&': '&amp;',
-            '<': '&lt;',
-            '>': '&gt;',
-            '"': '&quot;',
-            "'": '&#039;'
-        };
-
-        return entities[char];
-
-    });
-
-}
-
-// Validate image URL
-function getImageURL(imageURL) {
-
-    if (!imageURL) {
-        return 'img/default.png';
-    }
-
-    const value = String(imageURL).trim();
-
-    if (
-        value.startsWith('http://') ||
-        value.startsWith('https://') ||
-        value.startsWith('/') ||
-        value.startsWith('./') ||
-        value.startsWith('../') ||
-        value.startsWith('uploads/')
-    ) {
-        return value;
-    }
-
-    return 'img/default.png';
-}
-
-// Format event date
-function formatDate(dateString) {
-
-    if (!dateString) {
-        return 'Không rõ';
-    }
-
-    const date = new Date(dateString.replace(' ', 'T'));
-
-    if (isNaN(date.getTime())) {
-        return escapeHTML(dateString);
-    }
-
-    return date.toLocaleString('vi-VN', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-    });
-
-}
-
-// Hiển thị badge loại bài đăng
-function renderTypeBadge(type) {
-
-    if (type === 'LOST') {
-        return `
-            <span class="badge badge-danger p-2"
-                    style="position: absolute; top: 10px; left: 10px;">
-                <i class="fas fa-exclamation-circle"></i> BÁO MẤT
-            </span>
-        `;
-    }
-
-    return `
-        <span class="badge badge-success p-2"
-                style="position: absolute; top: 10px; left: 10px;">
-            <i class="fas fa-hand-holding-heart"></i> NHẶT ĐƯỢC
-        </span>
-    `;
-}
-
-// Hiển thị badge trạng thái
-function renderStatusBadge(status) {
-
-    switch (status) {
-
-        case 'OPEN':
-            return `
-                <span class="badge badge-primary p-2"
-                    style="position: absolute; top: 10px; right: 10px;">
-                    <i class="fas fa-eye"></i> ĐANG MỞ
-                </span>
-            `;
-
-        case 'RESOLVED':
-            return `
-                <span class="badge badge-success p-2"
-                    style="position: absolute; top: 10px; right: 10px;">
-                    <i class="fas fa-check-circle"></i> ĐÃ GIẢI QUYẾT
-                </span>
-            `;
-
-        case 'CLOSED':
-            return `
-                <span class="badge badge-secondary p-2"
-                    style="position: absolute; top: 10px; right: 10px;">
-                    <i class="fas fa-lock"></i> ĐÃ ĐÓNG
-                </span>
-            `;
-
-        default:
-            return '';
-    }
-}
-
-// ==========================================
 // LOAD ITEMS FROM REST API
 // ==========================================
 
@@ -715,7 +592,14 @@ async function deleteItem(itemId) {
 }
 
 // Update item status
+
+// Update item status
 async function updateItemStatus(itemId, newStatus) {
+
+    if (!confirm('Bạn có chắc chắn muốn thay đổi trạng thái bài đăng?')) {
+        return;
+    }
+
     try {
         const response = await fetch(
             `api/items/update-status.php?id=${encodeURIComponent(itemId)}`,
@@ -723,7 +607,8 @@ async function updateItemStatus(itemId, newStatus) {
                 method: 'PATCH',
                 credentials: 'same-origin',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': CSRF_TOKEN
                 },
                 body: JSON.stringify({
                     status: newStatus
@@ -733,19 +618,20 @@ async function updateItemStatus(itemId, newStatus) {
 
         const result = await response.json();
 
-        if (!response.ok) {
-            alert(result.message || 'Could not update item status.');
-            return;
+        if (!response.ok || !result.success) {
+            throw new Error(
+                result.message || 'Could not update item status.'
+            );
         }
 
-        alert(result.message);
+        alert('Cập nhật trạng thái thành công!');
 
-        // Reload the item list
+        // Reload danh sách bài đăng
         loadItems();
 
     } catch (error) {
         console.error('Update status error:', error);
-        alert('An error occurred while updating the item.');
+        alert(error.message);
     }
 }
 

@@ -534,6 +534,7 @@ if (!$itemId || $itemId <= 0) {
     <script src="custom.js"></script>
     <script src="js/jquery.min.js"></script>
     <script src="js/templatemo-script.js"></script>
+    <script src="js/common.js"></script>
 
 
     <!-- REST API -->
@@ -591,22 +592,6 @@ if (!$itemId || $itemId <= 0) {
 
         }
 
-
-        function escapeHTML(value) {
-
-            return String(value ?? '').replace(/[&<>"']/g, function(char) {
-
-                return {
-                    '&': '&amp;',
-                    '<': '&lt;',
-                    '>': '&gt;',
-                    '"': '&quot;',
-                    "'": '&#039;'
-                }[char];
-
-            });
-
-        }
 
 
         // --------------------------------------------------
