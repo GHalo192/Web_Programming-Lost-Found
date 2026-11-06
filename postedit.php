@@ -541,7 +541,7 @@ if (!$itemId || $itemId <= 0) {
     <script>
 
         // --------------------------------------------------
-        // 1. CONFIGURATION
+        // CONFIGURATION
         // --------------------------------------------------
 
         const API_URL = 'api/items/item.php';
@@ -555,7 +555,7 @@ if (!$itemId || $itemId <= 0) {
 
 
         // --------------------------------------------------
-        // 2. DOM ELEMENTS
+        // DOM ELEMENTS
         // --------------------------------------------------
 
         const editForm = document.getElementById('editForm');
@@ -574,7 +574,7 @@ if (!$itemId || $itemId <= 0) {
 
 
         // --------------------------------------------------
-        // 3. HELPER FUNCTIONS
+        // HELPER FUNCTIONS
         // --------------------------------------------------
 
         function showError(message) {
@@ -595,7 +595,7 @@ if (!$itemId || $itemId <= 0) {
 
 
         // --------------------------------------------------
-        // 4. POPULATE DROPDOWN
+        // POPULATE DROPDOWN
         // --------------------------------------------------
 
         function populateSelect(
@@ -630,7 +630,7 @@ if (!$itemId || $itemId <= 0) {
 
 
         // --------------------------------------------------
-        // 5. LOAD ITEM DATA
+        // LOAD ITEM DATA
         // --------------------------------------------------
 
         async function loadItem() {
@@ -729,7 +729,7 @@ if (!$itemId || $itemId <= 0) {
 
 
         // --------------------------------------------------
-        // 6. IMAGE PREVIEW
+        // IMAGE PREVIEW
         // --------------------------------------------------
 
         imageInput.addEventListener('change', function() {
@@ -774,7 +774,7 @@ if (!$itemId || $itemId <= 0) {
 
 
         // --------------------------------------------------
-        // 7. UPDATE ITEM
+        // UPDATE ITEM
         // --------------------------------------------------
 
         editForm.addEventListener('submit', async function(event) {
@@ -859,7 +859,7 @@ if (!$itemId || $itemId <= 0) {
 
 
         // --------------------------------------------------
-        // 8. INITIALIZE
+        // INITIALIZE
         // --------------------------------------------------
 
         document.addEventListener('DOMContentLoaded', function() {

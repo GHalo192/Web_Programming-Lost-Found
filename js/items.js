@@ -71,8 +71,6 @@ async function loadItems(page = 1, updateHistory = true) {
 
         }
 
-        // Chỉ sử dụng PAGE_STATUS nếu trang có trạng thái cố định
-        // Ví dụ: trang chỉ hiển thị bài đăng OPEN.
         if (PAGE_STATUS !== '') {
             params.set('status', PAGE_STATUS);
         }
@@ -84,7 +82,6 @@ async function loadItems(page = 1, updateHistory = true) {
 
     const queryString = params.toString();
 
-// [CẬP NHẬT 2]: Cập nhật URL trên trình duyệt cho cả public và self
     if (updateHistory) {
         history.pushState(
             { page: page },
@@ -122,7 +119,6 @@ async function loadItems(page = 1, updateHistory = true) {
         // Gọi function điều phối
         renderPosts(result.data);
 
-        // [CẬP NHẬT 3]: Render phân trang bất kể mode nào (miễn là API trả về kết quả pagination)
         if (result.pagination) {
             renderPagination(result.pagination);
         }
@@ -166,7 +162,7 @@ function renderMyItem(item) {
     const typeBadge = renderTypeBadge(item.type);
     const statusBadge = renderStatusBadge(item.status);
 
-    // Status action buttons
+    // Nút thay đổi trạng thái
     let statusButtons = '';
 
     if (item.status === 'OPEN') {
@@ -317,7 +313,7 @@ function renderMyItem(item) {
 
 function renderPublicPosts(items) {
 
-    // No posts found
+    // Không tìm thấy bài đăng nào
     if (!items || items.length === 0) {
 
         postsContainer.innerHTML = `
@@ -333,7 +329,7 @@ function renderPublicPosts(items) {
 
     items.forEach(function(item) {
 
-        // Determine item type
+        // Xác định item type
         const isLost = item.type === 'LOST';
 
         const badge = isLost
@@ -352,7 +348,7 @@ function renderPublicPosts(items) {
                 </span>
               `;
 
-        // Build post card
+        // Xây dựng HTML cho từng bài đăng
         html += `
 
             <article class="col-12 col-md-6 tm-post">
@@ -497,7 +493,7 @@ function renderPagination(pagination) {
     const currentPage = Number(pagination.current_page);
     const totalPages = Number(pagination.total_pages);
 
-    // No pagination needed
+    // Không cần phân trang
     if (totalPages <= 1) {
         paginationContainer.innerHTML = '';
         return;
@@ -509,7 +505,7 @@ function renderPagination(pagination) {
                 <ul class="pagination">
     `;
 
-    // Previous button
+    // Nút "Trước"
     if (currentPage > 1) {
 
         html += `
@@ -523,7 +519,7 @@ function renderPagination(pagination) {
 
     }
 
-    // Page numbers
+    // Số trang hiện tại
     for (let i = 1; i <= totalPages; i++) {
 
         html += `
@@ -536,7 +532,7 @@ function renderPagination(pagination) {
 
     }
 
-    // Next button
+    // Nút "Sau"
     if (currentPage < totalPages) {
 
         html += `
@@ -565,7 +561,7 @@ function renderPagination(pagination) {
 // USER ACTIONS
 // ==========================================
 
-// Delete item
+// Xóa item
 async function deleteItem(itemId) {
     // Xác nhận trước khi xóa
     const confirmed = confirm(

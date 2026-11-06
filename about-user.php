@@ -210,7 +210,7 @@ $profile_id = isset($_GET['id']) && is_numeric($_GET['id'])
         };
     </script>
 
-    <!-- Các function riêng của about-user -->
+    
     <script src="js/about-user.js"></script>
 </body>
 </html>

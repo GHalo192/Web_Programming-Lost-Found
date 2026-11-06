@@ -1,8 +1,8 @@
 // ==========================================
-// 1. HTML HELPERS
+// HTML HELPERS
 // ==========================================
 
-// Escape HTML to prevent XSS
+// chuyển đổi các ký tự đặc biệt trong HTML thành các thực thể HTML để tránh lỗi hiển thị
 function escapeHTML(value) {
 
     return String(value ?? '').replace(/[&<>"']/g, function(char) {
@@ -22,10 +22,10 @@ function escapeHTML(value) {
 }
 
 // ==========================================
-// 2. DATE HELPERS
+// DATE HELPERS
 // ==========================================
 
-// Format event date
+// Format ngày tháng từ chuỗi ngày tháng sang định dạng "dd/mm/yyyy hh:mm"
 function formatDate(dateString) {
 
     if (!dateString) {
@@ -49,7 +49,7 @@ function formatDate(dateString) {
 }
 
 // ==========================================
-// 3. IMAGE HELPERS
+// IMAGE HELPERS
 // ==========================================
 
 // Xử lý đường dẫn hình ảnh
@@ -74,7 +74,7 @@ function getImageURL(imageURL) {
 
 
 // ==========================================
-// 4. BADGE HELPERS
+// BADGE HELPERS
 // ==========================================
 
 // Hiển thị badge loại bài đăng

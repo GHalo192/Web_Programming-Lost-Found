@@ -1,5 +1,5 @@
 // ==========================================
-// 1. CONFIGURATION
+// CONFIGURATION
 // ==========================================
 
 const PROFILE_ID = window.ABOUT_USER_CONFIG.profileId;
@@ -7,7 +7,7 @@ const API_URL = 'api/users/detail.php';
 
 
 // ==========================================
-// 2. DOM ELEMENTS
+// DOM ELEMENTS
 // ==========================================
 
 const profileContainer = document.getElementById('profileContainer');
@@ -17,7 +17,7 @@ const paginationContainer = document.getElementById('paginationContainer');
 
 
 // ==========================================
-// 3. RENDER FUNCTIONS
+// RENDER FUNCTIONS
 // ==========================================
 
 // Hiển thị thông tin người dùng
@@ -139,7 +139,7 @@ function renderPagination(pagination) {
 
 
 // ==========================================
-// 4. API / DATA FUNCTIONS
+// API / DATA FUNCTIONS
 // ==========================================
 
 async function loadProfile(page = 1) {
@@ -198,7 +198,7 @@ async function loadProfile(page = 1) {
 
 
 // ==========================================
-// 5. EVENT LISTENERS
+// EVENT LISTENERS
 // ==========================================
 
 if (paginationContainer) {
@@ -214,7 +214,7 @@ if (paginationContainer) {
 
 
 // ==========================================
-// 6. INITIALIZATION
+// INITIALIZATION
 // ==========================================
 
 loadProfile(1);

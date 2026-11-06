@@ -1,5 +1,5 @@
 // ==========================================
-// 1. CONFIGURATION
+// CONFIGURATION
 // ==========================================
 
 const ITEM_ID = window.ABOUT_POST_CONFIG.itemId;
@@ -11,13 +11,13 @@ const API_URL = 'api/items/detail.php';
 
 
 // ==========================================
-// 2. DOM ELEMENTS
+// DOM ELEMENTS
 // ==========================================
 
 const postContainer = document.getElementById('postContainer');
 
 // ==========================================
-// 3. ACTION RENDERING FUNCTIONS
+// ACTION RENDERING FUNCTIONS
 // ==========================================
 
 // Tạo các nút quản lý dành cho chủ bài đăng
@@ -101,7 +101,7 @@ function renderAdminActions(post) {
 }
 
 // ==========================================
-// 4. RENDER FUNCTIONS
+// RENDER FUNCTIONS
 // ==========================================
 
 // Hiển thị toàn bộ thông tin bài đăng
@@ -211,7 +211,7 @@ function renderPost(post) {
 
 
 // ==========================================
-// 5. API / DATA FUNCTIONS
+// API / DATA FUNCTIONS
 // ==========================================
 
 // Gọi API lấy thông tin chi tiết
@@ -260,7 +260,7 @@ async function loadPost() {
 
 
 // ==========================================
-// 6. ACTION FUNCTIONS
+// ACTION FUNCTIONS
 // ==========================================
 
 // Cập nhật trạng thái bài đăng qua REST API
@@ -333,7 +333,7 @@ async function deletePost() {
 
 
 // ==========================================
-// 7. INITIALIZATION
+// INITIALIZATION
 // ==========================================
 
 // Cho phép các nút onclick trong HTML gọi được function
@@ -342,7 +342,7 @@ window.deletePost = deletePost;
 
 
 // ==========================================
-// 8. FUNCTION CALLS
+// FUNCTION CALLS
 // ==========================================
 
 // Chạy khi trang được tải
