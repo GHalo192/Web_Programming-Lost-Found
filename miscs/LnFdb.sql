@@ -17,6 +17,7 @@ CREATE TABLE Users (
     phone VARCHAR(20) NOT NULL,
     password VARCHAR(50) NOT NULL,
     role ENUM('STUDENT', 'ADMIN') DEFAULT 'STUDENT',
+    status ENUM('ACTIVE', 'BANNED') DEFAULT 'ACTIVE',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -41,18 +42,18 @@ CREATE TABLE Locations (
 -- ============================================================
 CREATE TABLE Items (
     item_id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT DEFAULT NULL,                       -- Khóa ngoại (Nguồn đăng tin)
-    category_id INT DEFAULT NULL,                   -- Khóa ngoại Danh mục
-    location_id INT DEFAULT NULL,                   -- Khóa ngoại Địa điểm
+    user_id INT DEFAULT NULL,                      
+    category_id INT DEFAULT NULL,                  
+    location_id INT DEFAULT NULL,                  
     
     title VARCHAR(255) NOT NULL,
     description TEXT NOT NULL,
-    type ENUM('LOST', 'FOUND') NOT NULL,            -- Phân loại: Mất đồ / Nhặt được đồ
+    type ENUM('LOST', 'FOUND') NOT NULL,     
     image_url VARCHAR(255) DEFAULT NULL,
-    date_event DATETIME NOT NULL,                   -- Ngày giờ xảy ra sự việc (mất/nhặt)
+    date_event DATETIME NOT NULL,                 
     
-    contact_phone VARCHAR(20) NOT NULL,             -- SĐT liên hệ riêng cho bài đăng (Mặc định lấy từ Users.phone)
-    alt_contact TEXT DEFAULT NULL,                  -- Thông tin liên hệ thêm (Zalo, Facebook link, v.v.)
+    contact_phone VARCHAR(20) NOT NULL,           
+    alt_contact TEXT DEFAULT NULL,                 
     
     status ENUM('OPEN', 'RESOLVED', 'CLOSED') DEFAULT 'OPEN', 
     -- OPEN: Đã duyệt/Đang hiển thị công khai
@@ -72,9 +73,9 @@ CREATE TABLE Items (
 -- 5. CHÈN DỮ LIỆU MẪU
 -- ============================================================
 
-INSERT INTO Users (fullname, email, phone, password, role) VALUES
-('Nguyễn Văn A', 'student@campus.edu.vn', '0901234567', '827ccb0eea8a706c4c34a16891f84e7b', 'STUDENT'),
-('Quản Trị Viên (Admin)', 'admin@campus.edu.vn', '0999999999', '827ccb0eea8a706c4c34a16891f84e7b', 'ADMIN');
+INSERT INTO Users (fullname, email, phone, password, role, status) VALUES
+('Nguyễn Văn A', 'student@campus.edu.vn', '0901234567', '827ccb0eea8a706c4c34a16891f84e7b', 'STUDENT','ACTIVE'),
+('Quản Trị Viên (Admin)', 'admin@campus.edu.vn', '0999999999', '827ccb0eea8a706c4c34a16891f84e7b', 'ADMIN','ACTIVE');
 
 INSERT INTO Categories (category_id, category_name) VALUES 
 (1, 'Thiết bị điện tử'),
@@ -125,212 +126,63 @@ INSERT INTO Items (
     alt_contact, 
     status
 ) VALUES 
--- 1. Bài đăng MẤT ĐỒ (Loại: LOST, Trạng thái: OPEN)
-(
-    1, 
-    1, 
-    9, 
-    'Thất lạc laptop Dell XPS 13 màu xám', 
-    'Mình có để quên một chiếc laptop Dell XPS 13 inch màu xám trong túi chống sốc màu đen tại bàn học tầng 2 thư viện Tòa G. Bên trong có nhiều tài liệu học tập quan trọng, ai nhặt được cho mình xin lại.', 
-    'LOST', 
-    '2026-03-20 10:30:00', 
-    '0901234567', 
-    'Facebook: fb.com/nguyenvana / Zalo: 0901234567', 
-    'OPEN'
-),
-
--- 2. Bài đăng NHẶT ĐƯỢC ĐỒ (Loại: FOUND, Trạng thái: OPEN)
-(
-    2, 
-    3, 
-    15, 
-    'Nhặt được chùm chìa khóa xe Honda có móc khóa Doraemon', 
-    'Trưa nay lúc 11h45 mình ăn cơm ở Căng tin thì thấy chùm chìa khóa gồm 1 chìa xe Smartkey Honda và 2 chìa khóa phòng rớt ở ghế. Đã gửi lại cho cô quản lý căng tin hoặc liên hệ mình để xác nhận.', 
-    'FOUND', 
-    '2026-03-22 11:45:00', 
-    '0999999999', 
-    'Bàn số 4 Căng tin hoặc Phòng Bảo vệ Tòa A', 
-    'OPEN'
-),
-
--- 3. Bài đăng MẤT ĐỒ (Loại: LOST, Trạng thái: OPEN)
-(
-    1, 
-    2, 
-    18, 
-    'Rớt ví tiền màu nâu chứa Căn cước công dân và Thẻ sinh viên', 
-    'Mình bị rơi ví da nam màu nâu trong khoảng từ Bãi xe tòa A sang Tòa C. Bên trong có CCCD mang tên Nguyễn Văn A, 1 thẻ ATM BIDV và một ít tiền mặt. Mình xin nhận lại và hậu tạ ạ.', 
-    'LOST', 
-    '2026-03-24 07:15:00', 
-    '0901234567', 
-    'SĐT/Zalo: 0901234567', 
-    'OPEN'
-),
-
--- 4. Bài đăng NHẶT ĐƯỢC ĐỒ (Loại: FOUND, Trạng thái: RESOLVED - Đã trao trả thành công)
-(
-    2, 
-    7, 
-    1, 
-    'Nhặt được tai thoại AirPods Pro 2 ở phòng A.203', 
-    'Mình nhặt được hộp tai nghe AirPods Pro màu trắng còn trong case nhựa trong suốt trên bàn giáo viên phòng A.203 sau giờ học ca sáng.', 
-    'FOUND', 
-    '2026-03-15 11:30:00', 
-    '0999999999', 
-    'Liên hệ Phòng Quản lý Sinh viên', 
-    'RESOLVED'
-),
-
--- 5. Bài đăng MẤT ĐỒ (Loại: LOST, Trạng thái: OPEN)
-(
-    1, 
-    5, 
-    16, 
-    'Quên áo khoác dù màu xanh đen tại Sân vận động', 
-    'Chiều qua lúc đá bóng mình có để áo khoác dù màu xanh đen nhãn hiệu Nike ở khán đài B Sân vận động. Ai cầm nhầm cho mình xin lại nhé.', 
-    'LOST', 
-    '2026-03-25 17:30:00', 
-    '0901234567', 
-    'SMS/Call trực tiếp', 
-    'OPEN'
-),
-
--- 6. MẤT ĐỒ: Điện thoại
-(
-    1,
-    4,
-    5,
-    'Làm rơi điện thoại Samsung Galaxy S24 màu đen',
-    'Mình làm rơi điện thoại Samsung Galaxy S24 màu đen, có ốp lưng trong suốt và hình dán nhỏ phía sau. Lần cuối mình nhớ đã sử dụng điện thoại tại khu vực ghế đá gần giảng đường. Ai nhặt được vui lòng liên hệ giúp mình.',
-    'LOST',
-    '2026-03-26 14:20:00',
-    '0901234567',
-    'Zalo: 0901234567',
-    'OPEN'
-),
-
--- 7. NHẶT ĐƯỢC ĐỒ: Thẻ sinh viên
-(
-    2,
-    2,
-    7,
-    'Nhặt được thẻ sinh viên gần giảng đường',
-    'Mình nhặt được một thẻ sinh viên ở lối đi trước giảng đường vào khoảng 9 giờ sáng. Thẻ còn nguyên vẹn. Chủ nhân vui lòng liên hệ và cung cấp thông tin để xác nhận trước khi nhận lại.',
-    'FOUND',
-    '2026-03-27 09:05:00',
-    '0999999999',
-    'Có thể nhận tại Phòng Bảo vệ Tòa A',
-    'OPEN'
-),
-
--- 8. MẤT ĐỒ: Bình nước
-(
-    1,
-    6,
-    12,
-    'Thất lạc bình nước giữ nhiệt màu trắng',
-    'Mình để quên một bình nước giữ nhiệt màu trắng, dung tích khoảng 750ml, có nắp màu bạc tại khu vực tự học. Bình có dán một nhãn sticker hình mèo ở thân. Nếu ai thấy vui lòng báo giúp mình.',
-    'LOST',
-    '2026-03-28 15:40:00',
-    '0901234567',
-    'Facebook: fb.com/nguyenvana',
-    'OPEN'
-),
-
--- 9. NHẶT ĐƯỢC ĐỒ: Ô dù
-(
-    2,
-    5,
-    3,
-    'Nhặt được ô dù gấp màu xanh tại hành lang',
-    'Mình nhặt được một chiếc ô gấp màu xanh đậm bị bỏ quên trên ghế ở hành lang tầng 1. Mình đã giữ lại để tránh thất lạc. Chủ nhân vui lòng mô tả thêm đặc điểm của ô để xác nhận.',
-    'FOUND',
-    '2026-03-29 16:10:00',
-    '0999999999',
-    'Liên hệ qua Zalo: 0999999999',
-    'OPEN'
-),
-
--- 10. MẤT ĐỒ: Sách
-(
-    1,
-    8,
-    9,
-    'Mất sách giáo trình Cấu trúc dữ liệu và giải thuật',
-    'Mình bị thất lạc một quyển giáo trình Cấu trúc dữ liệu và giải thuật bìa xanh dương tại thư viện. Bên trong có ghi tên ở trang đầu và một số ghi chú bằng bút chì. Ai tìm thấy xin liên hệ giúp mình.',
-    'LOST',
-    '2026-03-30 10:00:00',
-    '0901234567',
-    'SĐT/Zalo: 0901234567',
-    'OPEN'
-),
-
--- 11. NHẶT ĐƯỢC ĐỒ: Chuột máy tính
-(
-    2,
-    1,
-    14,
-    'Nhặt được chuột máy tính Logitech màu đen',
-    'Mình nhặt được một con chuột máy tính Logitech màu đen ở phòng máy sau giờ thực hành buổi chiều. Chuột có dây và còn hoạt động bình thường. Chủ nhân vui lòng mô tả thêm để nhận lại.',
-    'FOUND',
-    '2026-04-01 16:45:00',
-    '0999999999',
-    'Liên hệ qua số điện thoại hoặc gặp tại phòng máy',
-    'OPEN'
-),
-
--- 12. MẤT ĐỒ: Tai nghe
-(
-    1,
-    7,
-    20,
-    'Làm rơi tai nghe Bluetooth màu trắng',
-    'Mình làm rơi một bên tai nghe Bluetooth màu trắng trong hộp đựng nhỏ. Có thể mình đã đánh rơi khi di chuyển từ khu vực căn tin đến bãi giữ xe. Ai nhặt được vui lòng liên hệ giúp mình.',
-    'LOST',
-    '2026-04-02 12:30:00',
-    '0901234567',
-    'Zalo: 0901234567',
-    'CLOSED'
-),
-
--- 13. NHẶT ĐƯỢC ĐỒ: Balo
-(
-    2,
-    3,
-    11,
-    'Nhặt được balo màu xám tại khu vực tự học',
-    'Mình nhặt được một chiếc balo màu xám đặt dưới gầm bàn tại khu vực tự học. Bên trong có một số đồ dùng học tập. Mình không đăng chi tiết các vật dụng để chủ nhân có thể xác nhận khi liên hệ.',
-    'FOUND',
-    '2026-04-03 18:00:00',
-    '0999999999',
-    'Có thể liên hệ để hẹn địa điểm nhận lại',
-    'CLOSED'
-),
-
--- 14. MẤT ĐỒ: Thẻ ngân hàng
-(
-    1,
-    2,
-    18,
-    'Thất lạc thẻ ngân hàng tại khuôn viên trường',
-    'Mình làm thất lạc một thẻ ngân hàng khi di chuyển trong khuôn viên trường. Mình không ghi thông tin số thẻ để đảm bảo an toàn. Nếu ai nhặt được, vui lòng liên hệ và mô tả địa điểm nhặt được để xác nhận.',
-    'LOST',
-    '2026-04-04 08:15:00',
-    '0901234567',
-    'Zalo: 0901234567',
-    'RESOLVED'
-),
-
--- 15. NHẶT ĐƯỢC ĐỒ: Hộp bút
-(
-    2,
-    6,
-    2,
-    'Nhặt được hộp bút màu đen trong lớp học',
-    'Mình nhặt được một hộp bút màu đen có khóa kéo ở ngăn bàn sau giờ học. Bên trong có bút bi và bút chì. Chủ nhân vui lòng liên hệ, mô tả thêm đặc điểm của hộp bút để nhận lại.',
-    'FOUND',
-    '2026-04-05 11:20:00',
-    '0999999999',
-    'Liên hệ trực tiếp qua số điện thoại',
-    'RESOLVED'
-);
+-- 1
+(1, 1, 9, 'Thất lạc laptop Dell XPS 13 màu xám', 'Mình có để quên một chiếc laptop Dell XPS 13 inch màu xám trong túi chống sốc màu đen tại bàn học tầng 2 thư viện Tòa G. Bên trong có nhiều tài liệu học tập quan trọng, ai nhặt được cho mình xin lại.', 'LOST', '2026-03-20 10:30:00', '0901234567', 'Facebook: fb.com/nguyenvana / Zalo: 0901234567', 'OPEN'),
+-- 2
+(2, 2, 3, 'Nhặt được thẻ sinh viên và CCCD', 'Nhặt được một ví da màu nâu bên trong có thẻ sinh viên khoa CNTT và CCCD mang tên Trần Văn B tại sảnh nhà A4.', 'FOUND', '2026-03-22 14:15:00', '0988776655', 'Liên hệ qua Văn phòng Đoàn trường', 'OPEN'),
+-- 3
+(1, 3, 12, 'Mất chìa khóa xe máy Honda', 'Làm rơi một chùm chìa khóa có dán sticker mèo màu trắng, gồm chìa khóa xe Vision và chìa khóa phòng trọ quanh khu vực bãi giữ xe sinh viên.', 'LOST', '2026-03-23 08:00:00', '0901234567', 'Zalo: 0901234567', 'OPEN'),
+-- 4
+(2, 4, 15, 'Nhặt được bình giữ nhiệt Lock&Lock', 'Bình giữ nhiệt màu xanh ngọc để quên tại phòng học B202 sau buổi học lý thuyết môn Cấu trúc dữ liệu.', 'FOUND', '2026-03-24 17:30:00', '0912345678', 'Facebook: fb.com/admin', 'OPEN'),
+-- 5
+(1, 5, 5, 'Mất áo khoác dù màu đen có logo trường', 'Áo khoác gió mùa đông size L treo ở ghế đá sân bóng rổ, quay lại tìm thì không thấy.', 'LOST', '2026-03-25 18:00:00', '0901234567', 'Zalo: 0901234567', 'RESOLVED'),
+-- 6
+(2, 6, 8, 'Nhặt được tai nghe Bluetooth AirPods Pro', 'Tìm thấy một hộp sạc AirPods Pro kèm tai nghe rơi ở hàng ghế chờ căng tin trung tâm.', 'FOUND', '2026-03-26 12:10:00', '0933445566', 'Nhận lại tại quầy bảo vệ căng tin', 'OPEN'),
+-- 7
+(1, 7, 18, 'Mất giáo trình Xác suất Thống kê', 'Sách có ghi chú tên và lớp ở trang bìa, để quên ở phòng tự học nhà C6.', 'LOST', '2026-03-27 15:45:00', '0901234567', 'Facebook: fb.com/nguyenvana', 'OPEN'),
+-- 8
+(2, 8, 2, 'Nhặt được ô gấp gọn tự động màu đen', 'Bỏ quên ở hành lang tầng 3 nhà hiệu bộ sau cơn mưa chiều.', 'FOUND', '2026-03-28 16:20:00', '0977889900', 'Zalo: 0977889900', 'OPEN'),
+-- 9
+(1, 1, 11, 'Mất máy tính bảng iPad Gen 9', 'Để trong balo nhưng bị rách khóa nhẹ và rơi mất lúc di chuyển qua khu vực nhà thi đấu đa năng.', 'LOST', '2026-03-29 09:10:00', '0901234567', 'Số điện thoại: 0901234567', 'OPEN'),
+-- 10
+(2, 2, 20, 'Nhặt được thẻ ngân hàng Techcombank', 'Nhặt được thẻ ATM đứng tên NGUYEN THI C tại cây ATM khu vực Ký túc xá.', 'FOUND', '2026-03-30 11:00:00', '0911223344', 'Liên hệ bảo vệ KTX', 'OPEN'),
+-- 11
+(1, 3, 4, 'Mất chìa khóa phòng thí nghiệm', 'Chìa khóa có gắn móc khóa hình con gấu bông nhỏ, đánh rơi gần khu thí nghiệm Hóa học.', 'LOST', '2026-04-01 13:30:00', '0901234567', 'Zalo: 0901234567', 'CLOSED'),
+-- 12
+(2, 4, 14, 'Nhặt được một chiếc ví da màu đen', 'Bên trong không có tiền mặt nhưng có một số giấy tờ tùy thân và thẻ xe buýt.', 'FOUND', '2026-04-02 14:00:00', '0905556677', 'Facebook: fb.com/admin', 'OPEN'),
+-- 13
+(1, 5, 7, 'Mất mũ bảo hiểm 3/4 màu xám', 'Mũ sơn nhám, có kính chắn gió phía trước, để ở xe máy tại bãi xe nhà E và bị mất.', 'LOST', '2026-04-03 17:00:00', '0901234567', 'Zalo: 0901234567', 'OPEN'),
+-- 14
+(2, 6, 1, 'Nhặt được cáp sạc điện thoại Type-C', 'Cáp sạc hãng Baseus màu đen nhặt được tại phòng máy tính thực hành 102.', 'FOUND', '2026-04-04 10:15:00', '0966778899', 'Nhận tại phòng trực lab', 'OPEN'),
+-- 15
+(1, 7, 19, 'Mất tập tài liệu đồ án tốt nghiệp', 'Tập bìa cứng màu xanh dương chứa bản vẽ và báo cáo đồ án ngành Công nghệ thông tin.', 'LOST', '2026-04-05 08:30:00', '0901234567', 'Zalo/Phone: 0901234567', 'OPEN'),
+-- 16
+(2, 8, 10, 'Nhặt được một chiếc lắc tay bạc', 'Nhặt được ở khu vực bồn hoa trước sân hội trường lớn.', 'FOUND', '2026-04-06 15:20:00', '0944332211', 'Liên hệ Đoàn trường để xác nhận', 'OPEN'),
+-- 17
+(1, 1, 6, 'Thất lạc chuột không dây Logitech', 'Chuột màu trắng sữa, mã Pebble M350 bị rơi ra khỏi túi xách đoạn đường từ nhà xe lên giảng đường.', 'LOST', '2026-04-07 13:00:00', '0901234567', 'Facebook: fb.com/nguyenvana', 'OPEN'),
+-- 18
+(2, 2, 13, 'Nhặt được thẻ giữ xe tháng Ký túc xá', 'Thẻ xe số thứ tự #412 để quên tại bàn ghế đá sân KTX.', 'FOUND', '2026-04-08 21:00:00', '0988112233', 'Gặp ban quản lý KTX', 'OPEN'),
+-- 19
+(1, 3, 21, 'Mất chìa khóa tủ locker cá nhân', 'Chìa khóa số 42 ở khu vực thay đồ nhà thi đấu thể thao.', 'LOST', '2026-04-09 16:45:00', '0901234567', 'Zalo: 0901234567', 'OPEN'),
+-- 20
+(2, 4, 16, 'Nhặt được hộp đựng kính cận', 'Hộp kính màu hồng phấn bên trong có khăn lau kính, nhặt được tại sảnh tòa nhà Khoa học Tự nhiên.', 'FOUND', '2026-04-10 09:50:00', '0919998877', 'Inbox Facebook quản trị viên', 'OPEN'),
+-- 21
+(1, 5, 17, 'Mất áo hoodie màu xanh navy', 'Áo có chữ in ở ngực trái, để quên trên ghế phòng học A301.', 'LOST', '2026-04-11 11:20:00', '0901234567', 'Zalo: 0901234567', 'OPEN'),
+-- 22
+(2, 6, 9, 'Nhặt được máy tính cầm tay Casio FX-580VN X', 'Máy tính màu đen còn mới, nhặt tại bàn học phòng tự học thư viện tầng 3.', 'FOUND', '2026-04-12 14:40:00', '0922334455', 'Nhận lại tại quầy thông tin thư viện', 'RESOLVED'),
+-- 23
+(1, 7, 5, 'Mất sổ tay ghi chép cá nhân', 'Sổ tay bìa da màu nâu nhạt, ghi chép các thuật toán và ý tưởng code quan trọng.', 'LOST', '2026-04-13 15:10:00', '0901234567', 'Facebook: fb.com/nguyenvana', 'OPEN'),
+-- 24
+(2, 8, 3, 'Nhặt được đồng hồ đeo tay điện tử', 'Đồng hồ mặt vuông dây nhựa màu đen rơi gần cửa ra vào phòng hội thảo.', 'FOUND', '2026-04-14 18:00:00', '0933221144', 'Liên hệ phòng công tác sinh viên', 'OPEN'),
+-- 25
+(1, 1, 12, 'Thất lạc ổ cứng di động Transcend 1TB', 'Ổ cứng màu đen chống sốc, đựng source code các đồ án năm ngoái.', 'LOST', '2026-04-15 10:00:00', '0901234567', 'Zalo: 0901234567', 'OPEN'),
+-- 26
+(2, 2, 8, 'Nhặt được thẻ BHYT sinh viên', 'Thẻ bảo hiểm y tế mang tên Lê Thị D, nhặt được ở khu vực hành lang căng tin.', 'FOUND', '2026-04-16 12:30:00', '0977112233', 'Nhận lại tại văn phòng khoa', 'OPEN'),
+-- 27
+(1, 3, 2, 'Mất khóa tủ cá nhân văn phòng khoa', 'Chìa khóa nhỏ đi kèm thẻ tên cán bộ sinh viên.', 'LOST', '2026-04-17 14:20:00', '0901234567', 'Zalo: 0901234567', 'CLOSED'),
+-- 28
+(2, 4, 11, 'Nhặt được bình nước thể thao nhựa trong suốt', 'Bình nước dung tích 1L có vạch chia ml, bỏ quên tại sảnh nhà thi đấu.', 'FOUND', '2026-04-18 16:15:00', '0912233445', 'Inbox qua fanpage trường', 'OPEN'),
+-- 29
+(1, 5, 10, 'Mất găng tay chống nắng màu đen', 'Đôi găng tay vải thun lạnh để trong cốp xe nhưng lúc lấy ra bị rơi mất một chiếc dọc đường.', 'LOST', '2026-04-19 13:40:00', '0901234567', 'Zalo: 0901234567', 'OPEN'),
+-- 30
+(2, 6, 7, 'Nhặt được sạc dự phòng Xiaomi 10000mAh', 'Sạc dự phòng màu bạc, nhặt được tại khu vực ghế đá bãi giữ xe giáo viên.', 'FOUND', '2026-04-20 08:50:00', '0955667788', 'Liên hệ bác bảo vệ bãi xe', 'OPEN');
