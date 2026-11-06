@@ -235,6 +235,13 @@ if (empty($_SESSION['csrf_token'])) {
             </div>
             <!-- END POSTS -->
 
+            <!-- ==========================================
+                5. PAGINATION
+            ========================================== -->
+
+            <div class="row tm-row mt-4" id="paginationContainer">
+
+            </div>            
 
             <footer class="row tm-row">
                 <hr class="col-12">
@@ -264,10 +271,12 @@ if (empty($_SESSION['csrf_token'])) {
     <script src="js/templatemo-script.js"></script>
     <script src="js/common.js"></script>
     <script src="js/items.js" defer></script>
+    
     <!-- REST API -->
     <script>
         window.ITEMS_CONFIG = {
             mode: 'self',
+            status: '',
             apiUrl: 'api/users/me/items.php',
             csrfToken: <?php echo json_encode($_SESSION['csrf_token']); ?>
         };

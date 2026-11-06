@@ -47,7 +47,9 @@ async function loadItems(page = 1, updateHistory = true) {
         if (category_id) params.append('category_id', category_id);
         if (location_id) params.append('location_id', location_id);
 
-        params.append('status', PAGE_STATUS);
+        if (PAGE_STATUS !== '') {
+            params.append('status', PAGE_STATUS);
+        }        
         params.append('page', page);
 
     }
@@ -68,20 +70,20 @@ async function loadItems(page = 1, updateHistory = true) {
 
         }
 
-        // API hiện tại của itemself chưa có phân trang
-        // nên chưa cần truyền page ở đây.
+        params.append('status', PAGE_STATUS);
+        params.append('page', page);
+
     }
 
     const queryString = params.toString();
 
-    if (PAGE_MODE === 'public' && updateHistory) {
-
+// [CẬP NHẬT 2]: Cập nhật URL trên trình duyệt cho cả public và self
+    if (updateHistory) {
         history.pushState(
             { page: page },
             '',
             window.location.pathname + '?' + queryString
         );
-
     }
 
     const url = queryString
@@ -113,14 +115,14 @@ async function loadItems(page = 1, updateHistory = true) {
         // Gọi function điều phối
         renderPosts(result.data);
 
-        // Chỉ render phân trang khi API có trả pagination
-        if (PAGE_MODE === 'public' && result.pagination) {
+        // [CẬP NHẬT 3]: Render phân trang bất kể mode nào (miễn là API trả về kết quả pagination)
+        if (result.pagination) {
             renderPagination(result.pagination);
         }
 
     } catch (error) {
 
-        console.error('API Error:', error);
+        console.error('API Error:', error); 
 
         postsContainer.innerHTML = `
             <div class="col-12 text-center py-5">
@@ -228,13 +230,15 @@ function renderMyItem(item) {
 
                     <div class="position-relative mb-3">
 
-                        <img
-                            src="${imageURL}"
-                            alt="Image"
-                            class="img-fluid rounded"
-                            style="height: 200px; width: 100%; object-fit: cover;"
-                            onerror="this.src='img/default.png';"
-                        >
+                        <a href="about-post.php?id=${itemId}">
+                            <img
+                                src="${imageURL}"
+                                alt="${title}"
+                                class="img-fluid rounded"
+                                style="height: 200px; width: 100%; object-fit: cover;"
+                                onerror="this.src='img/default.png';"
+                            >
+                        </a>
 
                         ${typeBadge}
                         ${statusBadge}
@@ -242,7 +246,10 @@ function renderMyItem(item) {
                     </div>
 
                     <h4 class="tm-color-primary font-weight-bold">
-                        ${title}
+                        <a href="about-post.php?id=${itemId}"
+                        class="text-decoration-none">
+                            ${title}
+                        </a>
                     </h4>
 
                     <p class="small text-muted mt-2">
@@ -679,15 +686,18 @@ if (paginationContainer) {
 
 window.addEventListener('popstate', function() {
 
-    if (PAGE_MODE !== 'public') return;
-
     const params = new URLSearchParams(window.location.search);
-
+    
     document.getElementById('keyword').value =
         params.get('keyword') || '';
 
     document.getElementById('type').value =
         params.get('type') || '';
+
+    const statusSelect = document.getElementById('status');
+        if (statusSelect) {
+            statusSelect.value = params.get('status') || '';
+    }
 
     document.getElementById('category_id').value =
         params.get('category_id') || '';

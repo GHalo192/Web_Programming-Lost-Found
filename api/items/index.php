@@ -256,7 +256,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // ==================================================
-// GET: GET ITEM LIST (CODE CŨ)
+// GET: GET ITEM LIST
 // ==================================================
 
 if ($_SERVER['REQUEST_METHOD'] !== 'GET') {

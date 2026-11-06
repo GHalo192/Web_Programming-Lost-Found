@@ -49,6 +49,13 @@ function renderOwnerActions(post) {
                     </button>
                 ` : ''}
 
+                ${post.status === 'RESOLVED' ? `
+                    <button class="btn btn-sm btn-outline-warning"
+                            onclick="updatePostStatus('OPEN')">
+                        <i class="fas fa-folder-open"></i> Mở lại
+                    </button>
+                ` : ''}
+
                 <button class="btn btn-sm btn-outline-danger"
                         onclick="deletePost()">
                     <i class="fas fa-trash"></i> Xóa

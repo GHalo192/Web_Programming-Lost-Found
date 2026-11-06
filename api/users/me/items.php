@@ -1,4 +1,3 @@
-
 <?php
 session_start();
 
@@ -39,21 +38,12 @@ if (
     ]);
 }
 
-// Lấy user_id từ PHP Session, không lấy từ URL
 $current_user_id = (int) $_SESSION['user_id'];
 
-if ($current_user_id <= 0) {
-    respond(401, [
-        'success' => false,
-        'message' => 'Invalid user session.'
-    ]);
-}
-
-// Nhận các bộ lọc từ URL
+// Nhận các bộ lọc và trang hiện tại từ URL
 $keyword = trim($_GET['keyword'] ?? '');
 $type = trim($_GET['type'] ?? '');
 $status = trim($_GET['status'] ?? '');
-
 
 $category_id = (
     isset($_GET['category_id']) && $_GET['category_id'] !== ''
@@ -67,6 +57,14 @@ $location_id = (
     ? filter_var($_GET['location_id'], FILTER_VALIDATE_INT)
     : null;
 
+// Xử lý phân trang
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+if ($page < 1) {
+    $page = 1;
+}
+$limit = 6; // Số lượng bài đăng trên mỗi trang (khớp với cấu trúc giao diện cột bootstrap)
+$offset = ($page - 1) * $limit;
+
 // Kiểm tra dữ liệu đầu vào
 if (
     $status !== '' &&
@@ -77,7 +75,6 @@ if (
         'message' => 'Invalid status.'
     ]);
 }
-
 
 if ($type !== '' && !in_array($type, ['LOST', 'FOUND'], true)) {
     respond(400, [
@@ -108,28 +105,21 @@ if (
 
 // Điều kiện bắt buộc: chỉ lấy bài đăng của tài khoản hiện tại
 $conditions = ['Items.user_id = ?'];
-
 $params = [$current_user_id];
 $param_types = 'i';
 
 // Lọc theo từ khóa
 if ($keyword !== '') {
-    $conditions[] = "
-        (Items.title LIKE ? OR Items.description LIKE ?)
-    ";
-
+    $conditions[] = "(Items.title LIKE ? OR Items.description LIKE ?)";
     $search_term = '%' . $keyword . '%';
-
     $params[] = $search_term;
     $params[] = $search_term;
-
     $param_types .= 'ss';
 }
 
 // Lọc theo loại tin
 if ($type !== '') {
     $conditions[] = 'Items.type = ?';
-
     $params[] = $type;
     $param_types .= 's';
 }
@@ -137,7 +127,6 @@ if ($type !== '') {
 // Lọc theo trạng thái
 if ($status !== '') {
     $conditions[] = 'Items.status = ?';
-
     $params[] = $status;
     $param_types .= 's';
 }
@@ -145,7 +134,6 @@ if ($status !== '') {
 // Lọc theo danh mục
 if ($category_id !== null) {
     $conditions[] = 'Items.category_id = ?';
-
     $params[] = $category_id;
     $param_types .= 'i';
 }
@@ -153,14 +141,31 @@ if ($category_id !== null) {
 // Lọc theo khu vực
 if ($location_id !== null) {
     $conditions[] = 'Items.location_id = ?';
-
     $params[] = $location_id;
     $param_types .= 'i';
 }
 
 $where = 'WHERE ' . implode(' AND ', $conditions);
 
-// Lấy danh sách bài đăng
+// 1. Đếm tổng số lượng bản ghi thỏa mãn điều kiện để tính tổng số trang
+$count_sql = "SELECT COUNT(*) AS total FROM Items $where";
+$count_stmt = $conn->prepare($count_sql);
+
+if ($count_stmt) {
+    if (!empty($params)) {
+        $count_stmt->bind_param($param_types, ...$params);
+    }
+    $count_stmt->execute();
+    $count_result = $count_stmt->get_result();
+    $total_items = $count_result->fetch_assoc()['total'] ?? 0;
+    $count_stmt->close();
+} else {
+    $total_items = 0;
+}
+
+$total_pages = $total_items > 0 ? ceil($total_items / $limit) : 1;
+
+// 2. Lấy danh sách bài đăng có giới hạn phân trang (LIMIT & OFFSET)
 $sql = "
     SELECT
         Items.*,
@@ -173,6 +178,7 @@ $sql = "
         ON Items.location_id = Locations.location_id
     $where
     ORDER BY Items.created_at DESC
+    LIMIT ? OFFSET ?
 ";
 
 $stmt = $conn->prepare($sql);
@@ -184,11 +190,14 @@ if (!$stmt) {
     ]);
 }
 
-$stmt->bind_param($param_types, ...$params);
+// Ghim thêm tham số limit và offset vào câu truy vấn
+$bind_types = $param_types . 'ii';
+$bind_params = array_merge($params, [$limit, $offset]);
+
+$stmt->bind_param($bind_types, ...$bind_params);
 
 if (!$stmt->execute()) {
     $stmt->close();
-
     respond(500, [
         'success' => false,
         'message' => 'Could not retrieve items.'
@@ -196,7 +205,6 @@ if (!$stmt->execute()) {
 }
 
 $result = $stmt->get_result();
-
 $items = [];
 
 while ($row = $result->fetch_assoc()) {
@@ -205,9 +213,14 @@ while ($row = $result->fetch_assoc()) {
 
 $stmt->close();
 
-// Trả kết quả JSON
+// Trả kết quả JSON kèm theo cấu trúc pagination
 respond(200, [
     'success' => true,
     'data' => $items,
-    'total_items' => count($items)
+    'total_items' => $total_items,
+    'pagination' => [
+        'current_page' => $page,
+        'total_pages' => (int)$total_pages,
+        'limit' => $limit
+    ]
 ]);
