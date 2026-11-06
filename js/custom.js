@@ -17,3 +17,5 @@ imageInput.addEventListener('change', function () {
         previewText.style.display = 'block';
     }
 });
+
+// I'm too afraid to change this due to spagetti code shenanigans

@@ -58,6 +58,7 @@ async function loadItems(page = 1, updateHistory = true) {
     // SELF MODE
     // ======================================
 
+
     else if (PAGE_MODE === 'self') {
 
         const formData = new FormData(searchForm);
@@ -65,13 +66,19 @@ async function loadItems(page = 1, updateHistory = true) {
         for (const [key, value] of formData.entries()) {
 
             if (value.trim() !== '') {
-                params.append(key, value);
+                params.set(key, value);
             }
 
         }
 
-        params.append('status', PAGE_STATUS);
-        params.append('page', page);
+        // Chỉ sử dụng PAGE_STATUS nếu trang có trạng thái cố định
+        // Ví dụ: trang chỉ hiển thị bài đăng OPEN.
+        if (PAGE_STATUS !== '') {
+            params.set('status', PAGE_STATUS);
+        }
+
+        // Tham số phân trang
+        params.set('page', page);
 
     }
 
