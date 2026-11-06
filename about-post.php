@@ -1,6 +1,6 @@
 <?php
 // ==========================================
-// 1. SESSION
+// SESSION
 // ==========================================
 session_start();
 
@@ -70,7 +70,7 @@ $item_id = isset($_GET['id']) && is_numeric($_GET['id'])
 
                     <li class="tm-nav-item">
                         <a href="itemclosed.php" class="tm-nav-link">
-                            <i class="fas fa-flag"></i>Đồ được đã bị ẩn đi
+                            <i class="fas fa-ban"></i>Đồ đã bị ẩn đi
                         </a>
                     </li>
 
@@ -188,7 +188,7 @@ $item_id = isset($_GET['id']) && is_numeric($_GET['id'])
         </main>
     </div>
 
-    <script src="custom.js"></script>
+    <script src="js/custom.js"></script>
     <script src="js/jquery.min.js"></script>
     <script src="js/templatemo-script.js"></script>
 

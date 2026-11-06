@@ -66,7 +66,7 @@ session_start();
 
                     <li class="tm-nav-item">
                         <a href="itemclosed.php" class="tm-nav-link">
-                            <i class="fas fa-flag"></i>Đồ được đã bị ẩn đi
+                            <i class="fas fa-ban"></i>Đồ đã bị ẩn đi
                         </a>
                     </li>
 
@@ -142,6 +142,20 @@ session_start();
 
 <div class="container-fluid">
     <main class="tm-main">
+
+        <div class="row mb-4">
+            <div class="col-12">
+                <h2 class="tm-color-primary">
+                    <i class="fas fa-home"></i>
+                    Trang chủ
+                </h2>
+
+                <p class="text-muted">
+                    Dưới đây là danh sách tất cả các tin báo mất / nhặt của trang web
+                </p>
+            </div>
+        </div>
+
         <!-- SEARCH FORM -->
         <div class="row tm-row mb-4">
             <div class="col-12">
@@ -282,7 +296,7 @@ session_start();
 
 <script src="js/jquery.min.js"></script>
 <script src="js/templatemo-script.js"></script>
-<script src="custom.js"></script>
+<script src="js/custom.js"></script>
 <script src="js/common.js"></script>
 <script src="js/items.js" defer></script>
 

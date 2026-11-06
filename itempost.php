@@ -74,7 +74,7 @@ if (empty($_SESSION['csrf_token'])) {
 
                     <li class="tm-nav-item">
                         <a href="itemclosed.php" class="tm-nav-link">
-                            <i class="fas fa-flag"></i>Đồ được đã bị ẩn đi
+                            <i class="fas fa-ban"></i>Đồ đã bị ẩn đi
                         </a>
                     </li>
 

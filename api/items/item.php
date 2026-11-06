@@ -7,7 +7,7 @@ header('Content-Type: application/json; charset=utf-8');
 require_once __DIR__ . '/../../db.php';
 
 // --------------------------------------------------
-// 1. HELPER FUNCTIONS
+// HELPER FUNCTIONS
 // --------------------------------------------------
 
 function apiRespond(int $status, array $body): void {
@@ -92,7 +92,7 @@ function validateDateTime(string $value): bool {
 }
 
 // --------------------------------------------------
-// 2. AUTHENTICATION
+// AUTHENTICATION
 // --------------------------------------------------
 
 $userId = requireLogin();
@@ -121,7 +121,7 @@ if ($itemId === false || $itemId === null || $itemId <= 0) {
 }
 
 // --------------------------------------------------
-// 3. GET: RETRIEVE ONE ITEM
+// GET: RETRIEVE ONE ITEM
 // --------------------------------------------------
 
 if ($method === 'GET') {
@@ -204,7 +204,7 @@ if ($method === 'GET') {
 }
 
 // --------------------------------------------------
-// 4. PATCH: UPDATE ITEM
+// PATCH: UPDATE ITEM
 // --------------------------------------------------
 
 if ($method === 'PATCH') {
@@ -337,7 +337,7 @@ if ($method === 'PATCH') {
     $newImagePath = null;
 
     // --------------------------------------------------
-    // 4.1. HANDLE IMAGE UPLOAD
+    // HANDLE IMAGE UPLOAD
     // --------------------------------------------------
 
     if (isset($_FILES['image']) && $_FILES['image']['error'] !== UPLOAD_ERR_NO_FILE) {
@@ -432,7 +432,7 @@ if ($method === 'PATCH') {
     }
 
     // --------------------------------------------------
-    // 4.2. UPDATE DATABASE
+    // UPDATE DATABASE
     // --------------------------------------------------
 
     $sql = "
@@ -513,7 +513,7 @@ if ($method === 'PATCH') {
 }
 
 // --------------------------------------------------
-// 5. DELETE: DELETE ITEM
+// DELETE: DELETE ITEM
 // --------------------------------------------------
 
 if ($method === 'DELETE') {
@@ -570,7 +570,7 @@ if ($method === 'DELETE') {
 }
 
 // --------------------------------------------------
-// 6. METHOD NOT ALLOWED
+// METHOD NOT ALLOWED
 // --------------------------------------------------
 
 header('Allow: GET, PATCH, DELETE, POST');

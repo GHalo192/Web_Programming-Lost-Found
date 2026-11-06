@@ -17,7 +17,6 @@ CREATE TABLE Users (
     phone VARCHAR(20) NOT NULL,
     password VARCHAR(50) NOT NULL,
     role ENUM('STUDENT', 'ADMIN') DEFAULT 'STUDENT',
-    status ENUM('ACTIVE', 'BANNED') DEFAULT 'ACTIVE',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -73,9 +72,9 @@ CREATE TABLE Items (
 -- 5. CHÈN DỮ LIỆU MẪU
 -- ============================================================
 
-INSERT INTO Users (fullname, email, phone, password, role, status) VALUES
-('Nguyễn Văn A', 'student@campus.edu.vn', '0901234567', '827ccb0eea8a706c4c34a16891f84e7b', 'STUDENT','ACTIVE'),
-('Quản Trị Viên (Admin)', 'admin@campus.edu.vn', '0999999999', '827ccb0eea8a706c4c34a16891f84e7b', 'ADMIN','ACTIVE');
+INSERT INTO Users (fullname, email, phone, password, role) VALUES
+('Nguyễn Văn A', 'student@campus.edu.vn', '0901234567', '827ccb0eea8a706c4c34a16891f84e7b', 'STUDENT'),
+('Quản Trị Viên (Admin)', 'admin@campus.edu.vn', '0999999999', '827ccb0eea8a706c4c34a16891f84e7b', 'ADMIN');
 
 INSERT INTO Categories (category_id, category_name) VALUES 
 (1, 'Thiết bị điện tử'),
@@ -185,4 +184,7 @@ INSERT INTO Items (
 -- 29
 (1, 5, 10, 'Mất găng tay chống nắng màu đen', 'Đôi găng tay vải thun lạnh để trong cốp xe nhưng lúc lấy ra bị rơi mất một chiếc dọc đường.', 'LOST', '2026-04-19 13:40:00', '0901234567', 'Zalo: 0901234567', 'OPEN'),
 -- 30
-(2, 6, 7, 'Nhặt được sạc dự phòng Xiaomi 10000mAh', 'Sạc dự phòng màu bạc, nhặt được tại khu vực ghế đá bãi giữ xe giáo viên.', 'FOUND', '2026-04-20 08:50:00', '0955667788', 'Liên hệ bác bảo vệ bãi xe', 'OPEN');
+(2, 6, 7, 'Nhặt được sạc dự phòng Xiaomi 10000mAh', 'Sạc dự phòng màu bạc, nhặt được tại khu vực ghế đá bãi giữ xe giáo viên.', 'FOUND', '2026-04-20 08:50:00', '0955667788', 'Liên hệ bác bảo vệ bãi xe', 'OPEN'),
+-- 31
+(2, 6, 7, 'Nhân phẩm của thằng admin', 'Trả tiền lại cho tui vro. Anh bạn nợ tôi lâu lắm rồi đấy.', 'LOST', '2026-04-20 08:50:00', '1234567890', 'Liên hệ cho tôi ông cố', 'OPEN');
+
