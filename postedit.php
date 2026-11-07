@@ -566,9 +566,9 @@ if (!$itemId || $itemId <= 0) {
 
         const formContainer = document.getElementById('formContainer');
 
-        const imageInput = document.getElementById('image');
+        const postImageInput = document.getElementById('image');
 
-        const imagePreview = document.getElementById('imagePreview');
+        const postImagePreview = document.getElementById('imagePreview');
 
         const saveButton = document.getElementById('saveButton');
 
@@ -706,7 +706,7 @@ if (!$itemId || $itemId <= 0) {
 
 
                 // Hiển thị ảnh hiện tại
-                imagePreview.src =
+                postImagePreview.src =
                     item.image_url || 'img/default.png';
 
 
@@ -732,7 +732,7 @@ if (!$itemId || $itemId <= 0) {
         // IMAGE PREVIEW
         // --------------------------------------------------
 
-        imageInput.addEventListener('change', function() {
+        postImageInput.addEventListener('change', function() {
 
             const file = this.files[0];
 
@@ -768,7 +768,7 @@ if (!$itemId || $itemId <= 0) {
             }
 
             // Hiển thị ảnh mới trước khi upload
-            imagePreview.src = URL.createObjectURL(file);
+            postImagePreview.src = URL.createObjectURL(file);
 
         });
 

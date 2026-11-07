@@ -100,8 +100,6 @@ $userId = requireLogin();
 // Xác định HTTP Method
 $method = $_SERVER['REQUEST_METHOD'];
 
-// PHP thường chỉ tự phân tích multipart/form-data cho POST.
-// Vì vậy, POST + _method=PATCH được xem là PATCH.
 if (
     $method === 'POST' &&
     isset($_POST['_method']) &&
