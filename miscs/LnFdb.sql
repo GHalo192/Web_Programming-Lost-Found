@@ -186,5 +186,5 @@ INSERT INTO Items (
 -- 30
 (2, 6, 7, 'Nhặt được sạc dự phòng Xiaomi 10000mAh', 'Sạc dự phòng màu bạc, nhặt được tại khu vực ghế đá bãi giữ xe giáo viên.', 'FOUND', '2026-04-20 08:50:00', '0955667788', 'Liên hệ bác bảo vệ bãi xe', 'OPEN'),
 -- 31
-(2, 6, 7, 'Nhân phẩm của thằng admin', 'Trả tiền lại cho tui vro. Anh bạn nợ tôi lâu lắm rồi đấy.', 'LOST', '2026-04-20 08:50:00', '1234567890', 'Liên hệ cho tôi ông cố', 'OPEN');
+(1, 6, 7, 'Nhân phẩm của thằng admin', 'Trả tiền lại cho tui vro. Anh bạn nợ tôi lâu lắm rồi đấy.', 'LOST', '2026-04-20 08:50:00', '1234567890', 'Gọi điện cho tui lẹ đi ông cố', 'OPEN');
 
