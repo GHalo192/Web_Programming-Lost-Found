@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     ]);
 }
 
-// 1. Kiểm tra đăng nhập
+// Kiểm tra đăng nhập
 if (empty($_SESSION['user_id'])) {
     respond(401, [
         'success' => false,
@@ -35,7 +35,7 @@ if (empty($_SESSION['user_id'])) {
     ]);
 }
 
-// 2. Kiểm tra CSRF token
+// Kiểm tra CSRF token
 $csrf_token = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
 
 if (
@@ -49,7 +49,7 @@ if (
     ]);
 }
 
-// 3. Đọc dữ liệu JSON
+// Đọc dữ liệu JSON
 $input = json_decode(file_get_contents('php://input'), true);
 
 if (!is_array($input)) {
@@ -81,7 +81,7 @@ if ($fullname_length > 255) {
 }
 
 try {
-    // 4. Chỉ cập nhật tài khoản đang đăng nhập
+    // Chỉ cập nhật tài khoản đang đăng nhập
     $user_id = (int) $_SESSION['user_id'];
 
     $sql = "
@@ -95,7 +95,7 @@ try {
     $stmt->execute();
     $stmt->close();
 
-    // 5. Cập nhật Session để tên mới xuất hiện ở sidebar
+    // Cập nhật Session để tên mới xuất hiện ở sidebar
     $_SESSION['fullname'] = $fullname;
 
     $conn->close();

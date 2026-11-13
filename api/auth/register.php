@@ -59,7 +59,7 @@ if (
     ]);
 }
 
-// 1. Kiểm tra dữ liệu rỗng
+// Kiểm tra dữ liệu rỗng
 if (
     $fullname === '' ||
     $email === '' ||
@@ -73,7 +73,7 @@ if (
     ]);
 }
 
-// 2. Kiểm tra email hợp lệ
+// Kiểm tra email hợp lệ
 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
     respond(400, [
         'success' => false,
@@ -81,7 +81,7 @@ if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
     ]);
 }
 
-// 3. Kiểm tra mật khẩu nhập lại
+//  Kiểm tra mật khẩu nhập lại
 if ($password !== $confirm_password) {
     respond(400, [
         'success' => false,
@@ -90,7 +90,7 @@ if ($password !== $confirm_password) {
 }
 
 try {
-    // 4. Kiểm tra email đã tồn tại chưa
+    // Kiểm tra email đã tồn tại chưa
     $check_sql = "
         SELECT user_id
         FROM Users
@@ -114,13 +114,13 @@ try {
         ]);
     }
 
-    // 5. Mã hóa mật khẩu theo định dạng hiện tại
+    // Mã hóa mật khẩu theo định dạng hiện tại
     $hashed_password = md5($password);
 
     // Tài khoản đăng ký mới mặc định là STUDENT
     $role = 'STUDENT';
 
-    // 6. Thêm tài khoản vào database
+    // Thêm tài khoản vào database
     $insert_sql = "
         INSERT INTO Users
             (fullname, email, phone, password, role)
@@ -145,7 +145,7 @@ try {
 
     $insert_stmt->close();
 
-    // 7. Trả kết quả thành công
+    // Trả kết quả thành công
     respond(201, [
         'success' => true,
         'message' => 'Đăng ký tài khoản thành công! Vui lòng đăng nhập.',

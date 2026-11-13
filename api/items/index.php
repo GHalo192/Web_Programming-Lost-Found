@@ -26,7 +26,7 @@ function apiRespond(int $status, array $data): void {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    // 1. Kiểm tra đăng nhập
+    // Kiểm tra đăng nhập
     if (!isset($_SESSION['user_id']) || (int)$_SESSION['user_id'] <= 0) {
         apiRespond(401, [
             'success' => false,
@@ -36,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $userId = (int)$_SESSION['user_id'];
 
-    // 2. Kiểm tra CSRF token
+    // Kiểm tra CSRF token
     $token = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
 
     if (
@@ -50,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ]);
     }
 
-    // 3. Lấy dữ liệu từ FormData
+    // Lấy dữ liệu từ FormData
     $type = trim($_POST['type'] ?? '');
     $title = trim($_POST['title'] ?? '');
     $description = trim($_POST['description'] ?? '');
@@ -69,7 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $phone = trim($_POST['phone'] ?? '');
     $altContact = trim($_POST['altcontact'] ?? '');
 
-    // 4. Kiểm tra dữ liệu bắt buộc
+    // Kiểm tra dữ liệu bắt buộc
     if (
         !in_array($type, ['LOST', 'FOUND'], true) ||
         $title === '' ||
@@ -85,7 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ]);
     }
 
-    // 5. Chuyển datetime-local sang định dạng MySQL
+    // Chuyển datetime-local sang định dạng MySQL
     $dateEvent = str_replace('T', ' ', $dateInput);
 
     if (strlen($dateEvent) === 16) {
@@ -110,7 +110,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ]);
     }
 
-    // 6. Xử lý ảnh nếu người dùng tải lên
+    // Xử lý ảnh nếu người dùng tải lên
     $imageUrl = null;
     $uploadedFilePath = null;
 
@@ -181,7 +181,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $imageUrl = 'uploads/items/' . $fileName;
     }
 
-    // 7. Lưu bài đăng vào database
+    // Lưu bài đăng vào database
     // Status mặc định là OPEN theo cấu trúc bảng Items.
     $sql = "
         INSERT INTO Items (
@@ -244,7 +244,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $stmt->close();
 
-    // 8. Trả kết quả cho frontend
+    // Trả kết quả cho frontend
     apiRespond(201, [
         'success' => true,
         'message' => 'Đăng bài thành công!',
@@ -268,7 +268,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 
 try {
 
-    // 3. Nhận các tham số từ URL
+    // Nhận các tham số từ URL
     $keyword = trim($_GET['keyword'] ?? '');
     $type = trim($_GET['type'] ?? '');
 
@@ -284,11 +284,11 @@ try {
 
     $page = max(1, (int)($_GET['page'] ?? 1));
 
-    // 4. Thiết lập phân trang
+    // Thiết lập phân trang
     $limit = 6;
     $offset = ($page - 1) * $limit;
 
-    // 5. Xây dựng điều kiện WHERE
+    // Xây dựng điều kiện WHERE
     $status = trim($_GET['status'] ?? 'OPEN');
 
     if (!in_array($status, ['OPEN', 'CLOSED', 'RESOLVED'], true)) {
@@ -351,7 +351,7 @@ try {
 
     $whereClause = "WHERE " . implode(" AND ", $conditions);
 
-    // 6. Đếm tổng số bài đăng
+    // Đếm tổng số bài đăng
     $total_sql = "
         SELECT COUNT(*) AS total
         FROM Items
@@ -372,7 +372,7 @@ try {
 
     $total_pages = (int)ceil($total_rows / $limit);
 
-    // 7. Lấy danh sách bài đăng
+    // Lấy danh sách bài đăng
     $sql = "
         SELECT
             Items.*,
@@ -414,14 +414,14 @@ try {
 
     $result = $stmt->get_result();
 
-    // 8. Chuyển kết quả SQL thành PHP array
+    // Chuyển kết quả SQL thành PHP array
     $data = [];
 
     while ($row = $result->fetch_assoc()) {
         $data[] = $row;
     }
 
-    // 9. Trả kết quả JSON
+    // Trả kết quả JSON
     http_response_code(200);
 
     echo json_encode([
@@ -438,7 +438,7 @@ try {
 
     ], JSON_UNESCAPED_UNICODE);
 
-    // 10. Đóng statement
+    // Đóng statement
     $stmt->close();
     $stmt_total->close();
 

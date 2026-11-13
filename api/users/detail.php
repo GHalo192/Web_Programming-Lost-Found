@@ -41,7 +41,7 @@ if ($profile_id === false || $profile_id === null || $profile_id <= 0) {
     ]);
 }
 
-// 1. XỬ LÝ THAM SỐ PHÂN TRANG
+// XỬ LÝ THAM SỐ PHÂN TRANG
 $page = filter_input(INPUT_GET, 'page', FILTER_VALIDATE_INT);
 $page = ($page !== false && $page !== null && $page > 0) ? $page : 1;
 
@@ -51,7 +51,7 @@ $limit = ($limit !== false && $limit !== null && $limit > 0) ? $limit : 6; // M�
 $offset = ($page - 1) * $limit;
 
 try {
-    // 2. Lấy thông tin người dùng
+    // Lấy thông tin người dùng
     $user_sql = "
         SELECT
             user_id,
@@ -77,7 +77,7 @@ try {
         ]);
     }
 
-    // 3. ĐẾM TỔNG SỐ BÀI ĐĂNG (ĐỂ TÍNH TỔNG SỐ TRANG)
+    // ĐẾM TỔNG SỐ BÀI ĐĂNG (ĐỂ TÍNH TỔNG SỐ TRANG)
     $count_sql = "SELECT COUNT(*) as total FROM Items WHERE user_id = ?";
     $count_stmt = $conn->prepare($count_sql);
     $count_stmt->bind_param('i', $profile_id);
@@ -87,7 +87,7 @@ try {
 
     $total_pages = ceil($total_items / $limit);
 
-    // 4. LẤY BÀI ĐĂNG THEO TRANG (SỬ DỤNG LIMIT VÀ OFFSET)
+    // LẤY BÀI ĐĂNG THEO TRANG (SỬ DỤNG LIMIT VÀ OFFSET)
     $items_sql = "
         SELECT
             Items.*,
@@ -117,7 +117,7 @@ try {
     $items_stmt->close();
     $conn->close();
 
-    // 5. TRẢ VỀ JSON KÈM ĐỐI TƯỢNG PAGINATION
+    // TRẢ VỀ JSON KÈM ĐỐI TƯỢNG PAGINATION
     respond(200, [
         'success' => true,
         'data' => [

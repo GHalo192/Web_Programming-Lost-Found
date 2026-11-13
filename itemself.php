@@ -1,5 +1,8 @@
 
 <?php
+// ==========================================
+// SESSION
+// ==========================================
 session_start();
 
 // Người chưa đăng nhập không được truy cập trang này
@@ -85,9 +88,17 @@ if (empty($_SESSION['csrf_token'])) {
             <div class="tm-mb-65 user-auth-box">
 
                 <div class="user-profile-info p-3 mb-2 bg-light rounded text-dark">
+                    <!-- Hiển thị thông tin người dùng -->
                     <div class="font-weight-bold" style="font-size: 1.1rem;">
                         <i class="fas fa-user-circle mr-1"></i>
-                        <?php echo htmlspecialchars($_SESSION['fullname'] ?? 'Thành viên'); ?>
+
+                        <a
+                            href="about-user.php?id=<?php echo urlencode((string)$_SESSION['user_id']); ?>"
+                            class="text-dark"
+                            style="text-decoration: none;"
+                        >
+                            <?php echo htmlspecialchars($_SESSION['fullname'] ?? 'Thành viên'); ?>
+                        </a>
                     </div>
 
                     <div class="text-muted small">
@@ -236,7 +247,7 @@ if (empty($_SESSION['csrf_token'])) {
             <!-- END POSTS -->
 
             <!-- ==========================================
-                5. PAGINATION
+                PAGINATION
             ========================================== -->
 
             <div class="row tm-row mt-4" id="paginationContainer">

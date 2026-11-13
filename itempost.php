@@ -31,7 +31,7 @@ if (empty($_SESSION['csrf_token'])) {
 <body>
 
 <!-- ==========================================
-     2. SIDEBAR
+    SIDEBAR
 ========================================== -->
 
 <header class="tm-header" id="tm-header">
@@ -96,10 +96,17 @@ if (empty($_SESSION['csrf_token'])) {
 
                 <div class="user-profile-info p-3 mb-2 bg-light rounded text-dark">
 
+                    <!-- Hiển thị thông tin người dùng -->
                     <div class="font-weight-bold" style="font-size: 1.1rem;">
                         <i class="fas fa-user-circle mr-1"></i>
 
-                        <?php echo htmlspecialchars($_SESSION['fullname'] ?? 'Thành viên'); ?>
+                        <a
+                            href="about-user.php?id=<?php echo urlencode((string)$_SESSION['user_id']); ?>"
+                            class="text-dark"
+                            style="text-decoration: none;"
+                        >
+                            <?php echo htmlspecialchars($_SESSION['fullname'] ?? 'Thành viên'); ?>
+                        </a>
                     </div>
 
                     <div class="text-muted small">
@@ -163,7 +170,7 @@ if (empty($_SESSION['csrf_token'])) {
                     value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>"
                 >                    
                 
-                <!-- 1. Loại tin đăng -->
+                <!-- Loại tin đăng -->
                     <div class="form-group row mb-4">
                         <label class="col-sm-3 col-form-label tm-color-primary font-weight-bold">Loại tin <span class="text-danger">*</span></label>
                         <div class="col-sm-9 d-flex align-items-center">
@@ -182,7 +189,7 @@ if (empty($_SESSION['csrf_token'])) {
                         </div>
                     </div>
 
-                    <!-- 2. Tiêu đề bài đăng -->
+                    <!-- Tiêu đề bài đăng -->
                     <div class="form-group row mb-4">
                         <label for="title" class="col-sm-3 col-form-label tm-color-primary font-weight-bold">Tiêu đề tin <span class="text-danger">*</span></label>
                         <div class="col-sm-9">
@@ -190,7 +197,7 @@ if (empty($_SESSION['csrf_token'])) {
                         </div>
                     </div>
 
-                    <!-- 3. Danh mục & Địa điểm -->
+                    <!-- Danh mục & Địa điểm -->
                     <div class="form-group row mb-4">
                         <label for="category_id" class="col-sm-3 col-form-label tm-color-primary font-weight-bold">Danh mục <span class="text-danger">*</span></label>
                         <div class="col-sm-9">
@@ -239,7 +246,7 @@ if (empty($_SESSION['csrf_token'])) {
                         </div>
                     </div>
 
-                    <!-- 4. Thời gian xảy ra vụ việc -->
+                    <!-- Thời gian xảy ra vụ việc -->
                     <div class="form-group row mb-4">
                         <label for="date_event" class="col-sm-3 col-form-label tm-color-primary font-weight-bold">Thời gian <span class="text-danger">*</span></label>
                         <div class="col-sm-9">
@@ -247,7 +254,7 @@ if (empty($_SESSION['csrf_token'])) {
                         </div>
                     </div>
 
-                    <!-- 5. Tải ảnh hình ảnh món đồ -->
+                    <!-- Tải ảnh hình ảnh món đồ -->
                     <div class="form-group row mb-4">
                         <label for="image" class="col-sm-3 col-form-label tm-color-primary font-weight-bold">Hình ảnh minh họa (nếu có) </label>
                         <div class="col-sm-9">
@@ -260,7 +267,7 @@ if (empty($_SESSION['csrf_token'])) {
                         </div>
                     </div>
 
-                    <!-- 6. Mô tả chi tiết -->
+                    <!-- Mô tả chi tiết -->
                     <div class="form-group row mb-4">
                         <label for="description" class="col-sm-3 col-form-label tm-color-primary font-weight-bold">Mô tả chi tiết <span class="text-danger">*</span></label>
                         <div class="col-sm-9">
@@ -268,7 +275,7 @@ if (empty($_SESSION['csrf_token'])) {
                         </div>
                     </div>
 
-                    <!-- 7. Thông tin liên hệ -->
+                    <!-- Thông tin liên hệ -->
                     <div class="form-group row mb-4">
                         <label for="phone" class="col-sm-3 col-form-label tm-color-primary font-weight-bold">Số điện thoại liên hệ <span class="text-danger">*</span></label>
                         <div class="col-sm-9">

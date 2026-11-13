@@ -27,7 +27,7 @@ $item_id = isset($_GET['id']) && is_numeric($_GET['id'])
 <body>
 
 <!-- ==========================================
-     2. SIDEBAR
+    SIDEBAR
 ========================================== -->
 
 <header class="tm-header" id="tm-header">

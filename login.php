@@ -80,6 +80,8 @@ $csrf_token = $_SESSION['csrf_token'];
     <div class="text-center mt-4">
         <p class="mb-0">Chưa có tài khoản? <a href="register.php" class="text-primary font-weight-bold">Đăng ký ngay</a></p>
         <p class="mt-2"><a href="index.php" class="text-muted"><i class="fas fa-arrow-left"></i> Quay lại trang chủ</a></p>
+        <p class="mt-2"><a href="forgot.php" class="text-primary">Quên mật khẩu?</a>
+</p>
     </div>
 </div>
 

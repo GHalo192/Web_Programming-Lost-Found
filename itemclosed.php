@@ -4,6 +4,12 @@
 // SESSION
 // ==========================================
 session_start();
+
+// Nếu chưa đăng nhập -> Đẩy về trang đăng nhập
+if (!isset($_SESSION['user_id'])) {
+    header('Location: login.php');
+    exit();
+}
 ?>
 
 <!DOCTYPE html>
@@ -24,7 +30,7 @@ session_start();
 <body>
 
 <!-- ==========================================
-     2. SIDEBAR
+    SIDEBAR
 ========================================== -->
 
 <header class="tm-header" id="tm-header">
@@ -89,10 +95,19 @@ session_start();
 
                 <div class="user-profile-info p-3 mb-2 bg-light rounded text-dark">
 
+                <div class="user-profile-info p-3 mb-2 bg-light rounded text-dark">
+
+                    <!-- Hiển thị thông tin người dùng -->
                     <div class="font-weight-bold" style="font-size: 1.1rem;">
                         <i class="fas fa-user-circle mr-1"></i>
 
-                        <?php echo htmlspecialchars($_SESSION['fullname'] ?? 'Thành viên'); ?>
+                        <a
+                            href="about-user.php?id=<?php echo urlencode((string)$_SESSION['user_id']); ?>"
+                            class="text-dark"
+                            style="text-decoration: none;"
+                        >
+                            <?php echo htmlspecialchars($_SESSION['fullname'] ?? 'Thành viên'); ?>
+                        </a>
                     </div>
 
                     <div class="text-muted small">
@@ -138,7 +153,7 @@ session_start();
 
 
 <!-- ==========================================
-     3. MAIN CONTENT
+    MAIN CONTENT
 ========================================== -->
 
 <div class="container-fluid">
@@ -239,7 +254,7 @@ session_start();
         <!-- END SEARCH FORM -->
 
         <!-- ==========================================
-             4. POSTS CONTAINER
+            POSTS CONTAINER
         ========================================== -->
 
         <div class="row tm-row" id="postsContainer">
@@ -252,7 +267,7 @@ session_start();
 
 
         <!-- ==========================================
-             5. PAGINATION
+            PAGINATION
         ========================================== -->
 
         <div class="row tm-row mt-4" id="paginationContainer">
@@ -261,7 +276,7 @@ session_start();
 
 
         <!-- ==========================================
-             6. FOOTER
+            FOOTER
         ========================================== -->
 
         <footer class="row tm-row">
@@ -292,7 +307,7 @@ session_start();
 
 
 <!-- ==========================================
-     7. JAVASCRIPT LIBRARIES
+    JAVASCRIPT LIBRARIES
 ========================================== -->
 
 <script src="js/jquery.min.js"></script>
@@ -302,7 +317,7 @@ session_start();
 <script src="js/items.js" defer></script>
 
 <!-- ==========================================
-     8. REST API JAVASCRIPT
+    REST API JAVASCRIPT
 ========================================== -->
 
 <script>

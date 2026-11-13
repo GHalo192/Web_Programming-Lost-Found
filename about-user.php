@@ -25,7 +25,7 @@ $profile_id = isset($_GET['id']) && is_numeric($_GET['id'])
 <body>
 
 <!-- ==========================================
-     2. SIDEBAR
+    SIDEBAR
 ========================================== -->
 
 <header class="tm-header" id="tm-header">
@@ -184,7 +184,7 @@ $profile_id = isset($_GET['id']) && is_numeric($_GET['id'])
             </div>
 
             <!-- ==========================================
-                5. PAGINATION
+                PAGINATION
             ========================================== -->
 
             <div class="row tm-row mt-4" id="paginationContainer"></div>        
