@@ -1,6 +1,10 @@
 <?php
 session_start();
 
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
 $profile_id = isset($_GET['id']) && is_numeric($_GET['id'])
     ? intval($_GET['id'])
     : 0;
@@ -206,7 +210,11 @@ $profile_id = isset($_GET['id']) && is_numeric($_GET['id'])
     <script>
         // Truyền dữ liệu từ PHP sang JavaScript
         window.ABOUT_USER_CONFIG = {
-            profileId: <?php echo json_encode($profile_id); ?>
+            profileId: <?php echo json_encode($profile_id); ?>,
+            currentUserId: <?php echo json_encode(
+                isset($_SESSION['user_id']) ? (int) $_SESSION['user_id'] : 0
+            ); ?>,
+            csrfToken: <?php echo json_encode($_SESSION['csrf_token']); ?>
         };
     </script>
 

@@ -5,6 +5,15 @@
 const PROFILE_ID = window.ABOUT_USER_CONFIG.profileId;
 const API_URL = 'api/users/detail.php';
 
+const CURRENT_USER_ID = Number(
+    window.ABOUT_USER_CONFIG.currentUserId
+);
+
+const CSRF_TOKEN = window.ABOUT_USER_CONFIG.csrfToken;
+
+const UPDATE_PROFILE_API = 'api/users/me/profile.php';
+
+let currentProfile = null;
 
 // ==========================================
 // DOM ELEMENTS
@@ -22,24 +31,76 @@ const paginationContainer = document.getElementById('paginationContainer');
 
 // Hiển thị thông tin người dùng
 function renderProfile(user) {
+    currentProfile = user;
+
+    const isOwner = CURRENT_USER_ID === Number(PROFILE_ID);
+
     profileContainer.innerHTML = `
         <div class="mr-4 text-success" style="font-size: 3rem;">
             <i class="fas fa-user-circle"></i>
         </div>
-        <div>
+
+        <div class="flex-grow-1">
             <h2 class="tm-color-primary font-weight-bold mb-1">
                 ${escapeHTML(user.fullname)}
             </h2>
+
             <p class="mb-1 text-muted">
                 <i class="fas fa-envelope mr-2"></i>
                 Email: <strong>${escapeHTML(user.email)}</strong>
             </p>
+
             <p class="mb-0 text-muted">
                 <i class="fas fa-calendar-alt mr-2"></i>
-                Thành viên tham gia hệ thống từ: ${escapeHTML(formatDate(user.created_at))}
+                Thành viên tham gia hệ thống từ:
+                ${escapeHTML(formatDate(user.created_at))}
             </p>
+
+            ${isOwner ? `
+                <button
+                    type="button"
+                    id="editNameBtn"
+                    class="btn btn-outline-primary btn-sm mt-3"
+                >
+                    <i class="fas fa-edit"></i>
+                    Chỉnh sửa tên
+                </button>
+
+                <form id="editNameForm" class="mt-3" hidden>
+                    <div class="form-group">
+                        <label for="fullnameInput">
+                            Tên hiển thị mới
+                        </label>
+
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="fullnameInput"
+                            maxlength="255"
+                            required
+                            value="${escapeHTML(user.fullname)}"
+                        >
+                    </div>
+
+                    <button type="submit" class="btn btn-success btn-sm">
+                        <i class="fas fa-save"></i>
+                        Lưu thay đổi
+                    </button>
+
+                    <button
+                        type="button"
+                        id="cancelEditNameBtn"
+                        class="btn btn-secondary btn-sm"
+                    >
+                        Hủy
+                    </button>
+
+                    <p id="updateNameMessage" class="mt-2 mb-0"></p>
+                </form>
+            ` : ''}
         </div>
     `;
+
     document.title = `Trang cá nhân - ${user.fullname} - Campus Lost&Found`;
 }
 
@@ -211,6 +272,91 @@ if (paginationContainer) {
         loadProfile(selectedPage);
     });
 }
+
+profileContainer.addEventListener('click', function(e) {
+
+    // Mở form chỉnh sửa
+    if (e.target.closest('#editNameBtn')) {
+        document.getElementById('editNameForm').hidden = false;
+        document.getElementById('editNameBtn').hidden = true;
+
+        document.getElementById('fullnameInput').focus();
+    }
+
+    // Hủy chỉnh sửa
+    if (e.target.closest('#cancelEditNameBtn')) {
+        document.getElementById('editNameForm').hidden = true;
+        document.getElementById('editNameBtn').hidden = false;
+
+        document.getElementById('fullnameInput').value =
+            currentProfile.fullname;
+
+        document.getElementById('updateNameMessage').textContent = '';
+    }
+
+});
+
+
+profileContainer.addEventListener('submit', async function(e) {
+
+    if (e.target.id !== 'editNameForm') return;
+
+    e.preventDefault();
+
+    const fullnameInput = document.getElementById('fullnameInput');
+    const messageElement = document.getElementById('updateNameMessage');
+    const submitButton = e.target.querySelector('button[type="submit"]');
+
+    const newFullname = fullnameInput.value.trim();
+
+    if (newFullname === '') {
+        messageElement.textContent = 'Tên hiển thị không được để trống.';
+        messageElement.className = 'mt-2 mb-0 text-danger';
+        return;
+    }
+
+    submitButton.disabled = true;
+    messageElement.textContent = 'Đang cập nhật...';
+    messageElement.className = 'mt-2 mb-0 text-muted';
+
+    try {
+        const response = await fetch(UPDATE_PROFILE_API, {
+            method: 'POST',
+
+            credentials: 'same-origin',
+
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': CSRF_TOKEN
+            },
+
+            body: JSON.stringify({
+                fullname: newFullname
+            })
+        });
+
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+            throw new Error(
+                result.message || 'Không thể cập nhật tên.'
+            );
+        }
+
+        // Cập nhật dữ liệu hồ sơ hiện tại
+        currentProfile.fullname = result.data.fullname;
+
+        // Hiển thị lại giao diện với tên mới
+        renderProfile(currentProfile);
+
+    } catch (error) {
+        messageElement.textContent = error.message;
+        messageElement.className = 'mt-2 mb-0 text-danger';
+
+        submitButton.disabled = false;
+    }
+
+});
 
 
 // ==========================================
