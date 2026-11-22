@@ -2,10 +2,14 @@
 -- KHỞI TẠO CƠ SỞ DỮ LIỆU: campus_lost_and_found
 -- ============================================================
 
-DROP TABLE IF EXISTS Items;
-DROP TABLE IF EXISTS Users;
-DROP TABLE IF EXISTS Categories;
-DROP TABLE IF EXISTS Locations;
+-- Xóa database cũ và tạo mới
+DROP DATABASE IF EXISTS campus_lost_and_found;
+
+CREATE DATABASE campus_lost_and_found
+CHARACTER SET utf8mb4
+COLLATE utf8mb4_unicode_ci;
+
+USE campus_lost_and_found;
 
 -- ============================================================
 -- 1. TẠO BẢNG USERS (Người dùng & Quản trị viên)
